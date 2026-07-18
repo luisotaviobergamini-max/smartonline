@@ -2708,6 +2708,17 @@
       background: #5a6268;
     }
 
+    /* Novo botão Liberar Acesso */
+    .vip-acesso-tabela .acoes-usuario .btn-liberar-acesso {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-liberar-acesso:hover {
+      background: #218838;
+      transform: scale(1.05);
+    }
+
     .vip-acesso-tabela .edit-input {
       width: 100%;
       padding: 0.2rem 0.4rem;
@@ -3816,7 +3827,8 @@
           </ul>
           <div
             style="margin-top:1rem; background:#1f3a57; border-radius:50px; padding:0.3rem 1rem; font-size:0.8rem; display:flex; gap:0.3rem; align-items:center;">
-            <i class="fas fa-user-plus"></i> <span>+250 membros ativos</span>
+            <i class="fas fa-user-plus"></i> <span id="contadorOnline"><i class="fas fa-users"></i> <span
+                id="numeroOnline">0</span> membros online agora</span>
           </div>
         </aside>
       </div>
@@ -3828,7 +3840,8 @@
           style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.8rem; background:#f5f8fc; padding:0.5rem 1rem; border-radius:60px;">
           <span style="background:#0b1a2e; color:#f0c040; padding:0.1rem 1rem; border-radius:40px; font-size:0.8rem;"><i
               class="fas fa-star"></i> VIP</span>
-          <span style="color:#1f3a57;"><i class="fas fa-users"></i> 12 membros online agora</span>
+          <span style="color:#1f3a57;"><i class="fas fa-users"></i> Membros cadastrados: <span
+              id="totalMembrosCadastrados">0</span></span>
         </div>
         <div id="listaMembrosVIP">
           <!-- Renderizado via JavaScript -->
@@ -4294,7 +4307,8 @@
       PUBLICACOES_VIP: 'publicacoesVIP',
       CHAT_MENSAGENS: 'chatMensagens',
       SUCATAS: 'sucatas',
-      PRODUTOS_LOJA: 'produtosLoja'
+      PRODUTOS_LOJA: 'produtosLoja',
+      SESSOES_ATIVAS: 'sessoesAtivas'
     };
 
     // --- FUNÇÕES REUTILIZÁVEIS ---
@@ -4429,6 +4443,113 @@
     }
 
     // ============================================================
+    // ===== SESSÕES ATIVAS - USUÁRIOS ONLINE =====
+    // ============================================================
+
+    // Função para registrar que um usuário está online
+    async function registrarUsuarioOnline(usuarioId, nomeUsuario) {
+      try {
+        const sessao = {
+          usuarioId: usuarioId,
+          nome: nomeUsuario,
+          ultimaAtividade: new Date().toISOString(),
+          status: 'online'
+        };
+        await salvarDados(COLLECTIONS.SESSOES_ATIVAS, sessao, usuarioId);
+      } catch (error) {
+        console.error('Erro ao registrar usuário online:', error);
+      }
+    }
+
+    // Função para remover usuário offline
+    async function removerUsuarioOffline(usuarioId) {
+      try {
+        await excluirDados(COLLECTIONS.SESSOES_ATIVAS, usuarioId);
+      } catch (error) {
+        console.error('Erro ao remover usuário offline:', error);
+      }
+    }
+
+    // Função para contar usuários online
+    async function contarUsuariosOnline() {
+      try {
+        const sessoes = await carregarDados(COLLECTIONS.SESSOES_ATIVAS);
+        const agora = new Date();
+        const limiteInatividade = 2 * 60 * 1000; // 2 minutos sem atividade
+
+        // Filtrar sessões que ainda estão ativas (última atividade há menos de 2 minutos)
+        const ativos = sessoes.filter(sessao => {
+          const ultimaAtividade = new Date(sessao.ultimaAtividade);
+          return (agora - ultimaAtividade) < limiteInatividade;
+        });
+
+        return ativos.length;
+      } catch (error) {
+        console.error('Erro ao contar usuários online:', error);
+        return 0;
+      }
+    }
+
+    // Função para atualizar o contador de membros online na interface
+    async function atualizarContadorOnline() {
+      const numeroElement = document.getElementById('numeroOnline');
+      if (!numeroElement) return;
+
+      try {
+        const totalOnline = await contarUsuariosOnline();
+        numeroElement.textContent = totalOnline;
+      } catch (error) {
+        console.error('Erro ao atualizar contador online:', error);
+      }
+    }
+
+    // Função para atualizar a última atividade do usuário
+    async function atualizarUltimaAtividade(usuarioId) {
+      if (!usuarioId) return;
+      try {
+        const sessoes = await carregarDados(COLLECTIONS.SESSOES_ATIVAS);
+        const sessao = sessoes.find(s => s.usuarioId === usuarioId);
+        if (sessao) {
+          sessao.ultimaAtividade = new Date().toISOString();
+          await editarDados(COLLECTIONS.SESSOES_ATIVAS, usuarioId, sessao);
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar atividade:', error);
+      }
+    }
+
+    // Função para iniciar monitoramento de sessão
+    function iniciarMonitoramentoSessao(usuarioId, nomeUsuario) {
+      if (!usuarioId) return;
+
+      // Registrar usuário online
+      registrarUsuarioOnline(usuarioId, nomeUsuario);
+
+      // Atualizar contador imediatamente
+      atualizarContadorOnline();
+
+      // Configurar listener para eventos de atividade
+      const eventos = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+      eventos.forEach(evento => {
+        document.addEventListener(evento, () => {
+          atualizarUltimaAtividade(usuarioId);
+        });
+      });
+
+      // Atualizar contador a cada 30 segundos
+      setInterval(async () => {
+        await atualizarContadorOnline();
+        // Também atualizar a última atividade periodicamente
+        await atualizarUltimaAtividade(usuarioId);
+      }, 30000);
+
+      // Registrar quando a página for fechada
+      window.addEventListener('beforeunload', () => {
+        removerUsuarioOffline(usuarioId);
+      });
+    }
+
+    // ============================================================
     // ===== VARIÁVEIS GLOBAIS =====
     // ============================================================
 
@@ -4455,6 +4576,7 @@
     let filtroPublicacaoAtual = '';
     let pubEditandoId = null;
     let sucataEditandoId = null;
+    let sessaoMonitorada = false;
 
     // ============================================================
     // ===== ELEMENTOS DOM =====
@@ -4514,6 +4636,12 @@
           <i class="fas fa-user-shield"></i> ADM: <strong>logado</strong>
         </div>
       `;
+        // Iniciar monitoramento de sessão para administrador
+        if (!sessaoMonitorada) {
+          const adminId = 'admin_' + USER;
+          iniciarMonitoramentoSessao(adminId, 'Administrador');
+          sessaoMonitorada = true;
+        }
       }
 
       const grupoVIP = document.getElementById('grupoVIP');
@@ -4551,6 +4679,14 @@
     });
 
     document.getElementById('btnSair').addEventListener('click', function () {
+      // Remover usuário da lista de online
+      if (usuarioTipo === 'admin') {
+        removerUsuarioOffline('admin_' + USER);
+        sessaoMonitorada = false;
+      } else if (usuarioVIPLogado) {
+        removerUsuarioOffline(usuarioVIPLogado.id);
+      }
+
       siteContainer.classList.remove('active');
       siteContainer.classList.remove('modo-visitante');
       loginContainer.style.display = 'block';
@@ -4739,7 +4875,14 @@
           mensagensChat = await carregarMensagensChat();
         }
 
+        // Atualizar total de membros cadastrados
+        const totalMembros = document.getElementById('totalMembrosCadastrados');
+        if (totalMembros) {
+          totalMembros.textContent = usuariosVIP.length;
+        }
+
         renderizarTodos();
+        await atualizarContadorOnline();
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
         alert('Erro ao carregar dados do servidor. Tente novamente.');
@@ -4754,6 +4897,12 @@
       renderizarMensagensChat();
       renderizarSucatas();
       atualizarEstadoChat();
+
+      // Atualizar total de membros cadastrados
+      const totalMembros = document.getElementById('totalMembrosCadastrados');
+      if (totalMembros) {
+        totalMembros.textContent = usuariosVIP.length;
+      }
     }
 
     // ============================================================
@@ -5686,6 +5835,12 @@
         renderizarAcessoVIP();
         fecharCadastroVIP();
         abrirPagamentoVIP();
+
+        // Atualizar total de membros cadastrados
+        const totalMembros = document.getElementById('totalMembrosCadastrados');
+        if (totalMembros) {
+          totalMembros.textContent = usuariosVIP.length;
+        }
       } catch (error) {
         alert('Erro ao cadastrar: ' + error.message);
       }
@@ -5765,6 +5920,11 @@
         }
 
         usuarioVIPLogado = usuario;
+        // Iniciar monitoramento de sessão para usuário VIP
+        if (!sessaoMonitorada) {
+          iniciarMonitoramentoSessao(usuario.id, usuario.nome);
+          sessaoMonitorada = true;
+        }
         fecharLoginVIP();
         abrirPaginaVIP();
       } catch (error) {
@@ -6167,6 +6327,10 @@
         const isEditing = acessoEditandoId === user.id;
         const statusClass = 'status-' + user.status.toLowerCase();
         const statusEmoji = user.status === 'Ativo' ? '🟢' : user.status === 'Bloqueado' ? '🔴' : user.status === 'Pendente' ? '🟡' : '⚫';
+
+        // Verifica se o botão "Liberar Acesso" deve ser exibido
+        const mostrarLiberar = user.status === 'Pendente' || user.status === 'Bloqueado';
+
         html += `
         <tr>
           <td>${isEditing ? `<input class="edit-input" type="text" id="edit-nome-${user.id}" value="${user.nome}">` : user.nome}</td>
@@ -6186,6 +6350,7 @@
               ` : `
                 <button class="btn-editar-usuario" data-id="${user.id}"><i class="fas fa-edit"></i> Editar</button>
                 <button class="btn-excluir-usuario" data-id="${user.id}"><i class="fas fa-trash"></i> Excluir</button>
+                ${mostrarLiberar ? `<button class="btn-liberar-acesso" data-id="${user.id}"><i class="fas fa-unlock"></i> Liberar Acesso</button>` : ''}
                 ${user.status === 'Bloqueado' ?
             `<button class="btn-liberar-usuario" data-id="${user.id}"><i class="fas fa-check-circle"></i> Liberar</button>` :
             `<button class="btn-bloquear-usuario" data-id="${user.id}"><i class="fas fa-ban"></i> Bloquear</button>`
@@ -6215,6 +6380,10 @@
                 usuariosVIP = await carregarUsuariosVIP();
                 renderizarAcessoVIP();
                 renderizarMembrosVIP();
+                const totalMembros = document.getElementById('totalMembrosCadastrados');
+                if (totalMembros) {
+                  totalMembros.textContent = usuariosVIP.length;
+                }
               }).catch(err => alert('Erro ao excluir: ' + err.message));
             }
           });
@@ -6258,11 +6427,35 @@
                   usuariosVIP = await carregarUsuariosVIP();
                   renderizarAcessoVIP();
                   renderizarMembrosVIP();
+                  const totalMembros = document.getElementById('totalMembrosCadastrados');
+                  if (totalMembros) {
+                    totalMembros.textContent = usuariosVIP.length;
+                  }
                 }).catch(err => alert('Erro ao cancelar: ' + err.message));
               }
             }
           });
         });
+
+        // ===== NOVO BOTÃO: LIBERAR ACESSO =====
+        document.querySelectorAll('.btn-liberar-acesso').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const user = usuariosVIP.find(u => u.id === id);
+            if (user) {
+              if (confirm(`Tem certeza que deseja liberar o acesso de "${user.nome}"?`)) {
+                user.status = 'Ativo';
+                editarDados(COLLECTIONS.USUARIOS_VIP, id, user).then(async () => {
+                  usuariosVIP = await carregarUsuariosVIP();
+                  renderizarAcessoVIP();
+                  renderizarMembrosVIP();
+                  alert(`✅ Acesso de "${user.nome}" liberado com sucesso!`);
+                }).catch(err => alert('Erro ao liberar acesso: ' + err.message));
+              }
+            }
+          });
+        });
+
       } else {
         document.querySelectorAll('.btn-salvar-usuario').forEach(btn => {
           btn.addEventListener('click', function () {
@@ -6373,6 +6566,8 @@
       console.log('📱 Chat disponível na aba "Chat" dentro de CLASSIFICADOS');
       console.log('🔄 Sucatas gerenciáveis apenas por administradores');
       console.log('📷 Upload de imagens na seção Sucatas substituiu o campo de URL');
+      console.log('👥 Contador de membros online dinâmico implementado!');
+      console.log('🔓 Botão "Liberar Acesso" adicionado na tabela de usuários VIP!');
     }).catch(err => {
       console.error('Erro na inicialização:', err);
     });
