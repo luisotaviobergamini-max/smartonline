@@ -1,0 +1,6400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartOnline · Login</title>
+  <!-- Font Awesome 6 (ícones) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Firebase SDKs -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js",
+        "firebase/storage": "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"
+      }
+    }
+  </script>
+  <style>
+    /* ===== TODOS OS ESTILOS EXISTENTES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    body {
+      background: #0b1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* TELA DE LOGIN */
+    .login-container {
+      background: #ffffff;
+      border-radius: 40px;
+      padding: 3rem 2.5rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .login-container .logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-container .logo h1 {
+      color: #0b1a2e;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .login-container .logo h1 i {
+      color: #f0c040;
+    }
+
+    .login-container .logo span {
+      color: #7fc9ff;
+    }
+
+    .login-container .logo p {
+      color: #5a6f88;
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+
+    .login-container .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .login-container label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .login-container .input-wrapper {
+      position: relative;
+    }
+
+    .login-container .input-wrapper i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f96b0;
+      font-size: 1rem;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"],
+    .login-container input[type="email"],
+    .login-container input[type="date"],
+    .login-container input[type="tel"],
+    .login-container input[type="number"] {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 3rem;
+      border: 2px solid #d0dae8;
+      border-radius: 60px;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+    }
+
+    .login-container input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 4px #f0c04033;
+      background: #fff;
+    }
+
+    .login-container .btn-login {
+      width: 100%;
+      padding: 0.9rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .login-container .btn-login:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(11, 26, 46, 0.3);
+    }
+
+    .login-container .btn-login i {
+      font-size: 1.1rem;
+    }
+
+    .login-container .btn-visitante {
+      width: 100%;
+      padding: 0.9rem;
+      background: transparent;
+      color: #0b1a2e;
+      border: 2px solid #d0dae8;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .login-container .btn-visitante:hover {
+      background: #f0f2f5;
+      border-color: #f0c040;
+      transform: scale(1.02);
+    }
+
+    .login-container .btn-visitante i {
+      color: #f0c040;
+      font-size: 1rem;
+    }
+
+    .login-container .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.2rem 0 0.5rem;
+    }
+
+    .login-container .divider::before,
+    .login-container .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #d0dae8;
+    }
+
+    .login-container .divider span {
+      color: #7f96b0;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .login-container .error-msg {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.7rem 1rem;
+      border-radius: 60px;
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .login-container .error-msg.show {
+      display: flex;
+    }
+
+    .login-container .error-msg i {
+      font-size: 1rem;
+    }
+
+    /* SITE PRINCIPAL */
+    .site-container {
+      display: none;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .site-container.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(145deg, #0b1a2e, #0f2840);
+      padding: 0.8rem 2rem;
+      border-radius: 40px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+    }
+
+    .logo-site h1 {
+      color: #f0e68c;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px #f0e68c55;
+    }
+
+    .logo-site span {
+      color: #7fc9ff;
+      font-weight: 300;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: #ddd;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.4rem 0.8rem;
+      border-radius: 30px;
+      transition: 0.2s;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .nav-links a i {
+      margin-right: 0.5rem;
+    }
+
+    .nav-links a:hover {
+      background: #2a4b6e;
+      color: #fff;
+      transform: scale(1.02);
+    }
+
+    .btn-membro {
+      background: #f0c040;
+      color: #0b1a2e !important;
+      font-weight: 700;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      box-shadow: 0 0 15px #f0b84088;
+    }
+
+    .btn-membro i {
+      color: #0b1a2e;
+    }
+
+    .btn-membro:hover {
+      background: #ffd966 !important;
+      box-shadow: 0 0 25px #f0c040;
+    }
+
+    .user-badge {
+      background: #2d2d2d;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: #aaa;
+      border: 1px solid #555;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-badge i {
+      color: #7fc9ff;
+    }
+
+    .user-badge strong {
+      color: #fff;
+      margin-left: 0.2rem;
+    }
+
+    .admin-badge {
+      background: #2d2d2d;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: #aaa;
+      border: 1px solid #f0c040;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .admin-badge i {
+      color: #f0c040;
+    }
+
+    .admin-badge strong {
+      color: #fff;
+      margin-left: 0.2rem;
+    }
+
+    .btn-sair {
+      background: transparent;
+      border: 1px solid #555;
+      color: #aaa;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .btn-sair:hover {
+      background: #dc3545;
+      border-color: #dc3545;
+      color: #fff;
+    }
+
+    /* GRID */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* SUCATA */
+    .sucata-section {
+      background: #fff;
+      border-radius: 30px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e9ecf0;
+    }
+
+    .sucata-section h2 {
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: #0b1a2e;
+      border-bottom: 3px dashed #f0c040;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sucata-section h2 i {
+      color: #c77d1e;
+    }
+
+    .sucata-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card-sucata {
+      background: #fafbfc;
+      border-radius: 24px;
+      padding: 1rem 1rem 1.2rem;
+      transition: 0.2s;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 8px #00000008;
+      text-align: center;
+      position: relative;
+    }
+
+    .card-sucata:hover {
+      transform: translateY(-5px);
+      border-color: #f0c040;
+      box-shadow: 0 12px 20px #00000015;
+    }
+
+    .card-sucata .sucata-acoes {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .card-sucata .sucata-acoes button {
+      padding: 0.2rem 0.5rem;
+      border-radius: 40px;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      font-weight: 600;
+    }
+
+    .card-sucata .sucata-acoes .btn-editar-sucata {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .card-sucata .sucata-acoes .btn-editar-sucata:hover {
+      background: #1f3a57;
+    }
+
+    .card-sucata .sucata-acoes .btn-excluir-sucata {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .card-sucata .sucata-acoes .btn-excluir-sucata:hover {
+      background: #c82333;
+    }
+
+    .card-sucata img {
+      width: 100%;
+      height: 130px;
+      object-fit: contain;
+      background: #eef2f7;
+      border-radius: 18px;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-sucata h4 {
+      font-size: 1rem;
+      color: #0f2840;
+    }
+
+    .card-sucata .preco {
+      font-weight: 700;
+      color: #c77d1e;
+      font-size: 1.2rem;
+    }
+
+    .card-sucata .sucata-tag {
+      background: #d9e2ef;
+      border-radius: 50px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.7rem;
+      display: inline-block;
+      margin-top: 0.3rem;
+      color: #1f3a57;
+      font-weight: 600;
+    }
+
+    .card-sucata .sucata-status {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+
+    .status-disponivel {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .status-reservada {
+      background: #ffc107;
+      color: #0b1a2e;
+    }
+
+    .status-vendida {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .status-inativa {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .btn-comprar {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .btn-comprar:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .btn-comprar i {
+      margin-right: 0.3rem;
+    }
+
+    .btn-adicionar-sucata {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: 0.5rem;
+    }
+
+    .btn-adicionar-sucata:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .btn-adicionar-sucata i {
+      color: #f0c040;
+    }
+
+    /* MEMBROS */
+    .membros-panel {
+      background: linear-gradient(135deg, #0b1a2e, #1f3a57);
+      border-radius: 30px;
+      padding: 1.8rem 1.8rem 2rem;
+      color: #f0f4fa;
+      box-shadow: 0 10px 25px rgba(0, 20, 40, 0.4);
+      border: 1px solid #3d6184;
+    }
+
+    .membros-panel h2 {
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 2px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .membros-panel h2 i {
+      color: #f0c040;
+    }
+
+    .preco-membro {
+      background: #f0c040;
+      color: #0b1a2e;
+      border-radius: 60px;
+      padding: 0.2rem 1.2rem;
+      font-weight: 800;
+      font-size: 1.4rem;
+      display: inline-block;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .btn-membro-assinar {
+      background: #f0c040;
+      border: none;
+      color: #0b1a2e;
+      font-weight: 700;
+      padding: 0.8rem 1.8rem;
+      border-radius: 60px;
+      font-size: 1.1rem;
+      width: 100%;
+      transition: 0.2s;
+      cursor: pointer;
+      box-shadow: 0 4px 12px #f0b84066;
+    }
+
+    .btn-membro-assinar i {
+      margin-right: 0.5rem;
+    }
+
+    .btn-membro-assinar:hover {
+      background: #ffd966;
+      transform: scale(1.01);
+    }
+
+    .lista-beneficios {
+      margin-top: 1.5rem;
+      list-style: none;
+    }
+
+    .lista-beneficios li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #2f4d70;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .lista-beneficios i {
+      color: #f0c040;
+      width: 1.4rem;
+    }
+
+    /* GRUPO EXCLUSIVO VIP - SÓ APARECE PARA ADMINISTRADOR */
+    .grupo-exclusivo {
+      background: #fff;
+      border-radius: 30px;
+      padding: 1.8rem 2rem;
+      margin-top: 2rem;
+      border: 1px solid #e0e7ef;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.02);
+      transition: 0.3s;
+    }
+
+    .grupo-exclusivo.hidden {
+      display: none !important;
+    }
+
+    .grupo-exclusivo h3 {
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: #0b1a2e;
+    }
+
+    .grupo-exclusivo h3 i {
+      color: #f0c040;
+    }
+
+    .membro-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: #f5f8fc;
+      border-radius: 60px;
+      padding: 0.5rem 1.5rem 0.5rem 1rem;
+      margin: 0.8rem 0;
+      border-left: 6px solid #f0c040;
+    }
+
+    .membro-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .membro-info i {
+      font-size: 1.8rem;
+      color: #1f3a57;
+    }
+
+    .membro-info span {
+      font-weight: 500;
+    }
+
+    .membro-tag {
+      background: #0b1a2e;
+      color: #f0c040;
+      padding: 0.2rem 1rem;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* ADMIN AREA */
+    .admin-area {
+      margin-top: 2.5rem;
+      background: #e9edf3;
+      border-radius: 60px;
+      padding: 0.7rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .admin-cred {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .admin-cred i {
+      color: #1f3a57;
+      font-size: 1.2rem;
+    }
+
+    .admin-login-box {
+      background: #1f2e3f;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      color: #ccc;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .admin-login-box strong {
+      color: #f0c040;
+      letter-spacing: 0.5px;
+    }
+
+    .admin-menu-vip {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-menu-vip button {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .admin-menu-vip button:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .admin-menu-vip button i {
+      color: #f0c040;
+    }
+
+    /* MODAIS */
+    .pix-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .pix-modal.active {
+      display: flex;
+    }
+
+    .pix-card {
+      background: #ffffff;
+      max-width: 460px;
+      width: 90%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2.2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+    }
+
+    @keyframes fadeSlide {
+      0% {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .pix-card .close-pix {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .pix-card .close-pix:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .pix-card h2 {
+      color: #0b1a2e;
+      font-size: 1.8rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .pix-card .pix-sub {
+      color: #3f5a78;
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+    }
+
+    .pix-card .pix-chave-box {
+      background: #f0f4fc;
+      border-radius: 80px;
+      padding: 0.8rem 1.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      border: 2px dashed #f0c040;
+      margin: 0.8rem 0 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #0b1a2e;
+      letter-spacing: 0.3px;
+      word-break: break-all;
+    }
+
+    .pix-card .pix-chave-box i {
+      color: #f0c040;
+      font-size: 1.6rem;
+    }
+
+    .pix-card .btn-copiar-pix {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pix-card .btn-copiar-pix:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .pix-card .pix-info {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #5a6f88;
+      border-top: 1px solid #e0e7ef;
+      padding-top: 1rem;
+    }
+
+    /* LOJA MODAL */
+    .loja-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loja-modal.active {
+      display: flex;
+    }
+
+    .loja-card {
+      background: #ffffff;
+      max-width: 850px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 1.8rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .loja-card .close-loja {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+      z-index: 5;
+    }
+
+    .loja-card .close-loja:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .loja-card h2 {
+      color: #0b1a2e;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .loja-card h2 i {
+      color: #f0c040;
+    }
+
+    .loja-card h2 span {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #5a6f88;
+      margin-left: 0.5rem;
+    }
+
+    .loja-produtos {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 1rem;
+      max-height: 45vh;
+    }
+
+    .loja-produtos::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .loja-produtos::-webkit-scrollbar-thumb {
+      background: #c0cbd8;
+      border-radius: 10px;
+    }
+
+    .loja-produtos::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    .produto-item {
+      background: #f5f8fc;
+      border-radius: 20px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      transition: 0.2s;
+    }
+
+    .produto-item:hover {
+      border-color: #f0c040;
+    }
+
+    .produto-item .produto-img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      background: #eef2f7;
+      border-radius: 16px;
+      padding: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .produto-item .produto-info {
+      flex: 1;
+    }
+
+    .produto-item .produto-info h4 {
+      color: #0b1a2e;
+      font-size: 1rem;
+    }
+
+    .produto-item .produto-info .produto-preco {
+      font-weight: 700;
+      color: #c77d1e;
+      font-size: 1.1rem;
+    }
+
+    .produto-item .produto-info .produto-desc {
+      font-size: 0.85rem;
+      color: #5a6f88;
+    }
+
+    .produto-item .produto-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .btn-remover {
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 0.3rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-remover:hover {
+      background: #c82333;
+      transform: scale(1.05);
+    }
+
+    .btn-editar {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.3rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-editar:hover {
+      background: #1f3a57;
+      transform: scale(1.05);
+    }
+
+    .criar-produto {
+      background: #f0f2f5;
+      border-radius: 30px;
+      padding: 1rem 1.2rem;
+      border-top: 2px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .criar-produto .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+    }
+
+    .criar-produto input,
+    .criar-produto textarea {
+      border: 1px solid #d0dae8;
+      border-radius: 20px;
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: 0.2s;
+      background: #fff;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .criar-produto input:focus,
+    .criar-produto textarea:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+    }
+
+    .criar-produto textarea {
+      min-height: 40px;
+      resize: vertical;
+      flex-basis: 100%;
+    }
+
+    .criar-produto .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .criar-produto .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .btn-img-produto {
+      background: transparent;
+      border: 1px dashed #7f96b0;
+      border-radius: 40px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      color: #1f3a57;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .btn-img-produto:hover {
+      border-color: #f0c040;
+      background: #f0c04022;
+    }
+
+    .btn-salvar-produto {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .btn-salvar-produto:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .btn-salvar-produto i {
+      margin-right: 0.3rem;
+    }
+
+    .preview-filename {
+      font-size: 0.75rem;
+      color: #5a6f88;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .editando-label {
+      background: #f0c040;
+      color: #0b1a2e;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .empty-produtos {
+      text-align: center;
+      padding: 2rem;
+      color: #5a6f88;
+    }
+
+    .empty-produtos i {
+      font-size: 2.5rem;
+      color: #d0dae8;
+      margin-bottom: 0.5rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #5a6f88;
+      font-size: 0.8rem;
+      border-top: 1px solid #d0dae8;
+      padding-top: 1.5rem;
+    }
+
+    /* MODO VISITANTE */
+    .modo-visitante .admin-area,
+    .modo-visitante .admin-badge,
+    .modo-visitante .criar-produto,
+    .modo-visitante .btn-editar,
+    .modo-visitante .btn-remover {
+      display: none !important;
+    }
+
+    .modo-visitante .loja-card h2 span {
+      display: none;
+    }
+
+    .modo-visitante .loja-card h2::after {
+      content: " — visualização";
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #5a6f88;
+      margin-left: 0.5rem;
+    }
+
+    /* ===== CLASSIFICADOS SMARTONLINE ===== */
+    .classificados-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+    }
+
+    .classificados-modal.active {
+      display: flex;
+    }
+
+    .classificados-card {
+      background: #ffffff;
+      max-width: 1100px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 1.8rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .classificados-card .close-classificados {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+      z-index: 5;
+    }
+
+    .classificados-card .close-classificados:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .classificados-card h2 {
+      color: #0b1a2e;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .classificados-card h2 i {
+      color: #f0c040;
+    }
+
+    .classificados-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+      border-bottom: 2px solid #e9ecf0;
+      padding-bottom: 0.5rem;
+    }
+
+    .classificados-tabs button {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      background: transparent;
+      color: #5a6f88;
+    }
+
+    .classificados-tabs button:hover {
+      background: #f0f2f5;
+      color: #0b1a2e;
+    }
+
+    .classificados-tabs button.active {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .classificados-tabs button i {
+      margin-right: 0.5rem;
+    }
+
+    .classificados-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .classificados-content .tab-panel {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .classificados-content .tab-panel.active {
+      display: flex;
+    }
+
+    .classificados-filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+      align-items: center;
+    }
+
+    .classificados-filtros input,
+    .classificados-filtros select {
+      border: 1px solid #d0dae8;
+      border-radius: 40px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+      background: #f5f8fc;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .classificados-filtros input:focus,
+    .classificados-filtros select:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .classificados-filtros .btn-novo-anuncio {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .classificados-filtros .btn-novo-anuncio:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .classificados-filtros .btn-novo-anuncio i {
+      color: #f0c040;
+    }
+
+    .classificados-lista {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      max-height: 45vh;
+    }
+
+    .classificados-lista::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .classificados-lista::-webkit-scrollbar-thumb {
+      background: #c0cbd8;
+      border-radius: 10px;
+    }
+
+    .classificados-lista::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    .anuncio-item {
+      background: #f5f8fc;
+      border-radius: 20px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e2e8f0;
+      transition: 0.2s;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+    }
+
+    .anuncio-item:hover {
+      border-color: #f0c040;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .anuncio-item .anuncio-img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      background: #eef2f7;
+      border-radius: 16px;
+      padding: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .anuncio-item .anuncio-info {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-titulo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0b1a2e;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-valor {
+      font-weight: 700;
+      color: #c77d1e;
+      font-size: 1.3rem;
+      margin: 0.2rem 0;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-desc {
+      font-size: 0.9rem;
+      color: #2d3f57;
+      margin: 0.3rem 0;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-contato {
+      font-size: 0.85rem;
+      color: #5a6f88;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.3rem;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-contato span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-contato i {
+      color: #0b1a2e;
+      width: 1.2rem;
+    }
+
+    .anuncio-item .anuncio-info .anuncio-data {
+      font-size: 0.75rem;
+      color: #7f96b0;
+      margin-top: 0.3rem;
+    }
+
+    .anuncio-item .anuncio-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+
+    .anuncio-item .anuncio-actions .btn-editar-anuncio,
+    .anuncio-item .anuncio-actions .btn-excluir-anuncio {
+      padding: 0.3rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      font-weight: 600;
+    }
+
+    .anuncio-item .anuncio-actions .btn-editar-anuncio {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .anuncio-item .anuncio-actions .btn-editar-anuncio:hover {
+      background: #1f3a57;
+      transform: scale(1.05);
+    }
+
+    .anuncio-item .anuncio-actions .btn-excluir-anuncio {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .anuncio-item .anuncio-actions .btn-excluir-anuncio:hover {
+      background: #c82333;
+      transform: scale(1.05);
+    }
+
+    .sem-anuncios {
+      text-align: center;
+      padding: 2rem;
+      color: #5a6f88;
+    }
+
+    .sem-anuncios i {
+      font-size: 2.5rem;
+      color: #d0dae8;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== CHAT ===== */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      background: #f5f8fc;
+      border-radius: 20px;
+      padding: 1rem;
+      min-height: 300px;
+      max-height: 50vh;
+      border: 1px solid #e9ecf0;
+    }
+
+    .chat-mensagens {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+      min-height: 200px;
+      max-height: 40vh;
+    }
+
+    .chat-mensagens::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-mensagens::-webkit-scrollbar-thumb {
+      background: #c0cbd8;
+      border-radius: 10px;
+    }
+
+    .chat-mensagens::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    .chat-mensagem {
+      background: #fff;
+      border-radius: 16px;
+      padding: 0.6rem 1rem;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      max-width: 85%;
+      align-self: flex-start;
+    }
+
+    .chat-mensagem.minha {
+      align-self: flex-end;
+      background: #e8f0fe;
+      border-color: #c5d5e8;
+    }
+
+    .chat-mensagem .msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: #5a6f88;
+      margin-bottom: 0.2rem;
+    }
+
+    .chat-mensagem .msg-header .msg-autor {
+      font-weight: 600;
+      color: #0b1a2e;
+    }
+
+    .chat-mensagem .msg-header .msg-autor i {
+      color: #f0c040;
+      margin-right: 0.3rem;
+    }
+
+    .chat-mensagem .msg-header .msg-data {
+      color: #7f96b0;
+      font-size: 0.65rem;
+      white-space: nowrap;
+    }
+
+    .chat-mensagem .msg-texto {
+      font-size: 0.9rem;
+      color: #1f2e3f;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .chat-input-area {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-shrink: 0;
+      padding-top: 0.5rem;
+      border-top: 1px solid #e9ecf0;
+    }
+
+    .chat-input-area input {
+      flex: 1;
+      border: 1px solid #d0dae8;
+      border-radius: 40px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    .chat-input-area input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+    }
+
+    .chat-input-area input:disabled {
+      background: #f0f2f5;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .chat-input-area .btn-enviar-chat {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .chat-input-area .btn-enviar-chat:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .chat-input-area .btn-enviar-chat:disabled {
+      background: #7f96b0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .chat-input-area .btn-enviar-chat i {
+      color: #f0c040;
+    }
+
+    .chat-sem-mensagens {
+      text-align: center;
+      color: #7f96b0;
+      font-size: 0.9rem;
+      padding: 2rem;
+    }
+
+    .chat-sem-mensagens i {
+      font-size: 2rem;
+      color: #d0dae8;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* ===== MODAIS EXISTENTES ===== */
+    .anuncio-form-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+    }
+
+    .anuncio-form-modal.active {
+      display: flex;
+    }
+
+    .anuncio-form-card {
+      background: #ffffff;
+      max-width: 600px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .anuncio-form-card .close-form {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .anuncio-form-card .close-form:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .anuncio-form-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .anuncio-form-card h3 i {
+      color: #f0c040;
+    }
+
+    .anuncio-form-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .anuncio-form-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .anuncio-form-card label .obrigatorio {
+      color: #dc3545;
+      margin-left: 0.2rem;
+    }
+
+    .anuncio-form-card input,
+    .anuncio-form-card textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .anuncio-form-card input:focus,
+    .anuncio-form-card textarea:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .anuncio-form-card textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .anuncio-form-card .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .anuncio-form-card .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .anuncio-form-card .btn-img-anuncio {
+      background: transparent;
+      border: 2px dashed #d0dae8;
+      border-radius: 20px;
+      padding: 0.7rem 1rem;
+      width: 100%;
+      font-size: 0.9rem;
+      color: #1f3a57;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .anuncio-form-card .btn-img-anuncio:hover {
+      border-color: #f0c040;
+      background: #f0c04022;
+    }
+
+    .anuncio-form-card .preview-filename-form {
+      font-size: 0.8rem;
+      color: #5a6f88;
+      margin-top: 0.3rem;
+      display: block;
+    }
+
+    .anuncio-form-card .btn-publicar {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .anuncio-form-card .btn-publicar:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    /* ===== SUCATA - FORMULÁRIO DE EDIÇÃO/CRIAÇÃO ===== */
+    .sucata-form-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1250;
+    }
+
+    .sucata-form-modal.active {
+      display: flex;
+    }
+
+    .sucata-form-card {
+      background: #ffffff;
+      max-width: 560px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .sucata-form-card .close-sucata-form {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .sucata-form-card .close-sucata-form:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .sucata-form-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .sucata-form-card h3 i {
+      color: #f0c040;
+    }
+
+    .sucata-form-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .sucata-form-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .sucata-form-card label .obrigatorio {
+      color: #dc3545;
+      margin-left: 0.2rem;
+    }
+
+    .sucata-form-card input,
+    .sucata-form-card select,
+    .sucata-form-card textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .sucata-form-card input:focus,
+    .sucata-form-card select:focus,
+    .sucata-form-card textarea:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .sucata-form-card textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    /* ===== CAMPO DE UPLOAD DE IMAGEM (estilo reutilizado) ===== */
+    .sucata-form-card .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .sucata-form-card .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .sucata-form-card .btn-img-sucata {
+      background: transparent;
+      border: 2px dashed #d0dae8;
+      border-radius: 20px;
+      padding: 0.7rem 1rem;
+      width: 100%;
+      font-size: 0.9rem;
+      color: #1f3a57;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .sucata-form-card .btn-img-sucata:hover {
+      border-color: #f0c040;
+      background: #f0c04022;
+    }
+
+    .sucata-form-card .preview-filename-sucata {
+      font-size: 0.8rem;
+      color: #5a6f88;
+      margin-top: 0.3rem;
+      display: block;
+    }
+
+    .sucata-form-card .preview-imagem-sucata {
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: 16px;
+      margin-top: 0.5rem;
+      background: #eef2f7;
+      object-fit: contain;
+      display: none;
+    }
+
+    .sucata-form-card .preview-imagem-sucata.visible {
+      display: block;
+    }
+
+    .sucata-form-card .btn-salvar-sucata {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .sucata-form-card .btn-salvar-sucata:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    /* ==========================
+       CADASTRO VIP - MODAL
+    ========================== */
+    .vip-cadastro-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1300;
+    }
+
+    .vip-cadastro-modal.active {
+      display: flex;
+    }
+
+    .vip-cadastro-card {
+      background: #ffffff;
+      max-width: 520px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .vip-cadastro-card .close-vip-cadastro {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .vip-cadastro-card .close-vip-cadastro:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-cadastro-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .vip-cadastro-card h3 i {
+      color: #f0c040;
+    }
+
+    .vip-cadastro-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .vip-cadastro-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .vip-cadastro-card label .obrigatorio {
+      color: #dc3545;
+      margin-left: 0.2rem;
+    }
+
+    .vip-cadastro-card input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .vip-cadastro-card input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-cadastro-card .btn-salvar-vip {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .vip-cadastro-card .btn-salvar-vip:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    /* ==========================
+       MODAL DE PAGAMENTO VIP
+    ========================== */
+    .vip-pagamento-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1400;
+    }
+
+    .vip-pagamento-modal.active {
+      display: flex;
+    }
+
+    .vip-pagamento-card {
+      background: #ffffff;
+      max-width: 480px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2.5rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      text-align: center;
+    }
+
+    .vip-pagamento-card .close-pagamento {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .vip-pagamento-card .close-pagamento:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-pagamento-card .pagamento-icon {
+      font-size: 4rem;
+      color: #28a745;
+      margin-bottom: 0.5rem;
+    }
+
+    .vip-pagamento-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .vip-pagamento-card p {
+      color: #3f5a78;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+    }
+
+    .vip-pagamento-card .valor-destaque {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f0c040;
+      background: #f5f8fc;
+      padding: 0.3rem 1.5rem;
+      border-radius: 60px;
+      display: inline-block;
+      margin: 0.5rem 0;
+    }
+
+    .vip-pagamento-card .whatsapp-destaque {
+      display: inline-block;
+      background: #25d366;
+      color: #fff;
+      padding: 0.4rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      margin: 0.3rem 0;
+    }
+
+    .vip-pagamento-card .btn-fechar-pagamento {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 2.5rem;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 1rem;
+    }
+
+    .vip-pagamento-card .btn-fechar-pagamento:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    /* ==========================
+       CONFIGURAÇÃO ADMIN VIP
+    ========================== */
+    .vip-config-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+    }
+
+    .vip-config-modal.active {
+      display: flex;
+    }
+
+    .vip-config-card {
+      background: #ffffff;
+      max-width: 520px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+    }
+
+    .vip-config-card .close-vip-config {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .vip-config-card .close-vip-config:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-config-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .vip-config-card h3 i {
+      color: #f0c040;
+    }
+
+    .vip-config-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .vip-config-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .vip-config-card input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .vip-config-card input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-config-card .config-actions {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .vip-config-card .config-actions button {
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .vip-config-card .config-actions .btn-salvar-config {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .vip-config-card .config-actions .btn-salvar-config:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .vip-config-card .config-actions .btn-excluir-config {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .vip-config-card .config-actions .btn-excluir-config:hover {
+      background: #c82333;
+      transform: scale(1.02);
+    }
+
+    /* ==========================
+       ACESSO VIP - GERENCIAMENTO DE USUÁRIOS
+    ========================== */
+    .vip-acesso-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1600;
+    }
+
+    .vip-acesso-modal.active {
+      display: flex;
+    }
+
+    .vip-acesso-card {
+      background: #ffffff;
+      max-width: 1200px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 1.8rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .vip-acesso-card .close-vip-acesso {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+      z-index: 5;
+    }
+
+    .vip-acesso-card .close-vip-acesso:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-acesso-card h2 {
+      color: #0b1a2e;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .vip-acesso-card h2 i {
+      color: #f0c040;
+    }
+
+    .vip-acesso-filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+      align-items: center;
+    }
+
+    .vip-acesso-filtros input,
+    .vip-acesso-filtros select {
+      border: 1px solid #d0dae8;
+      border-radius: 40px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+      background: #f5f8fc;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .vip-acesso-filtros input:focus,
+    .vip-acesso-filtros select:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-acesso-tabela {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 1rem;
+      max-height: 55vh;
+    }
+
+    .vip-acesso-tabela::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .vip-acesso-tabela::-webkit-scrollbar-thumb {
+      background: #c0cbd8;
+      border-radius: 10px;
+    }
+
+    .vip-acesso-tabela::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    .vip-acesso-tabela table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .vip-acesso-tabela table th {
+      background: #0b1a2e;
+      color: #f0c040;
+      padding: 0.6rem 0.6rem;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .vip-acesso-tabela table th:hover {
+      background: #1f3a57;
+    }
+
+    .vip-acesso-tabela table td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid #e9ecf0;
+      vertical-align: middle;
+    }
+
+    .vip-acesso-tabela table tr:hover td {
+      background: #f5f8fc;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.15rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .status-ativo {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .status-bloqueado {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .status-pendente {
+      background: #ffc107;
+      color: #0b1a2e;
+    }
+
+    .status-cancelado {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .vip-acesso-tabela .acoes-usuario button {
+      padding: 0.15rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-editar-usuario {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-editar-usuario:hover {
+      background: #1f3a57;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-salvar-usuario {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-salvar-usuario:hover {
+      background: #218838;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-excluir-usuario {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-excluir-usuario:hover {
+      background: #c82333;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-bloquear-usuario {
+      background: #fd7e14;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-bloquear-usuario:hover {
+      background: #e06b0a;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-liberar-usuario {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-liberar-usuario:hover {
+      background: #218838;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-cancelar-usuario {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .vip-acesso-tabela .acoes-usuario .btn-cancelar-usuario:hover {
+      background: #5a6268;
+    }
+
+    .vip-acesso-tabela .edit-input {
+      width: 100%;
+      padding: 0.2rem 0.4rem;
+      border: 1px solid #d0dae8;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      background: #fff;
+      outline: none;
+      min-width: 60px;
+    }
+
+    .vip-acesso-tabela .edit-input:focus {
+      border-color: #f0c040;
+    }
+
+    .sem-usuarios {
+      text-align: center;
+      padding: 2rem;
+      color: #5a6f88;
+    }
+
+    .sem-usuarios i {
+      font-size: 2.5rem;
+      color: #d0dae8;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ==========================
+       LOGIN VIP
+    ========================== */
+    .vip-login-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1700;
+    }
+
+    .vip-login-modal.active {
+      display: flex;
+    }
+
+    .vip-login-card {
+      background: #ffffff;
+      max-width: 440px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+    }
+
+    .vip-login-card .close-vip-login {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .vip-login-card .close-vip-login:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-login-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .vip-login-card h3 i {
+      color: #f0c040;
+    }
+
+    .vip-login-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .vip-login-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .vip-login-card input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .vip-login-card input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-login-card .btn-logar-vip {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .vip-login-card .btn-logar-vip:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .vip-login-card .msg-erro-vip {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.7rem 1rem;
+      border-radius: 60px;
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .vip-login-card .msg-erro-vip.show {
+      display: flex;
+    }
+
+    .vip-login-card .msg-erro-vip i {
+      font-size: 1rem;
+    }
+
+    /* ==========================
+       MODAL DE VERIFICAÇÃO DE EMAIL VIP
+    ========================== */
+    .vip-email-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1350;
+    }
+
+    .vip-email-modal.active {
+      display: flex;
+    }
+
+    .vip-email-card {
+      background: #ffffff;
+      max-width: 440px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+    }
+
+    .vip-email-card .close-vip-email {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .vip-email-card .close-vip-email:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-email-card h3 {
+      color: #0b1a2e;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .vip-email-card h3 i {
+      color: #f0c040;
+    }
+
+    .vip-email-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .vip-email-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .vip-email-card input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .vip-email-card input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-email-card .btn-continuar-email {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .vip-email-card .btn-continuar-email:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .vip-email-card .msg-erro-email {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.7rem 1rem;
+      border-radius: 60px;
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .vip-email-card .msg-erro-email.show {
+      display: flex;
+    }
+
+    .vip-email-card .msg-erro-email i {
+      font-size: 1rem;
+    }
+
+    /* ==========================
+       ÁREA VIP - PÁGINA DE PUBLICAÇÕES
+    ========================== */
+    .vip-pagina-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1800;
+    }
+
+    .vip-pagina-modal.active {
+      display: flex;
+    }
+
+    .vip-pagina-card {
+      background: #ffffff;
+      max-width: 950px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 1.8rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .vip-pagina-card .close-vip-pagina {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+      z-index: 5;
+    }
+
+    .vip-pagina-card .close-vip-pagina:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-pagina-card h2 {
+      color: #0b1a2e;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .vip-pagina-card h2 i {
+      color: #f0c040;
+    }
+
+    .vip-pagina-filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+      align-items: center;
+    }
+
+    .vip-pagina-filtros input {
+      border: 1px solid #d0dae8;
+      border-radius: 40px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+      background: #f5f8fc;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .vip-pagina-filtros input:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-pagina-filtros .btn-nova-publicacao {
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .vip-pagina-filtros .btn-nova-publicacao:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    .vip-pagina-filtros .btn-nova-publicacao i {
+      color: #f0c040;
+    }
+
+    .vip-pagina-filtros .btn-nova-publicacao.hidden {
+      display: none !important;
+    }
+
+    .vip-pagina-lista {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 1rem;
+      max-height: 55vh;
+    }
+
+    .vip-pagina-lista::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .vip-pagina-lista::-webkit-scrollbar-thumb {
+      background: #c0cbd8;
+      border-radius: 10px;
+    }
+
+    .vip-pagina-lista::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    .vip-publicacao-item {
+      background: #f5f8fc;
+      border-radius: 20px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e2e8f0;
+      transition: 0.2s;
+    }
+
+    .vip-publicacao-item:hover {
+      border-color: #f0c040;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .vip-publicacao-item .pub-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .vip-publicacao-item .pub-header .pub-titulo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0b1a2e;
+      flex: 1;
+    }
+
+    .vip-publicacao-item .pub-header .pub-autor {
+      font-size: 0.85rem;
+      color: #5a6f88;
+    }
+
+    .vip-publicacao-item .pub-header .pub-autor i {
+      margin-right: 0.3rem;
+    }
+
+    .vip-publicacao-item .pub-header .pub-data {
+      font-size: 0.75rem;
+      color: #7f96b0;
+    }
+
+    .vip-publicacao-item .pub-conteudo {
+      color: #2d3f57;
+      font-size: 0.95rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+
+    .vip-publicacao-item .pub-acoes {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      border-top: 1px solid #e9ecf0;
+      padding-top: 0.5rem;
+    }
+
+    .vip-publicacao-item .pub-acoes button {
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      font-weight: 600;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-responder {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-responder:hover {
+      background: #1f3a57;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-editar-pub {
+      background: #0b1a2e;
+      color: #fff;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-editar-pub:hover {
+      background: #1f3a57;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-excluir-pub {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-excluir-pub:hover {
+      background: #c82333;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-fixar-pub {
+      background: #f0c040;
+      color: #0b1a2e;
+    }
+
+    .vip-publicacao-item .pub-acoes .btn-fixar-pub:hover {
+      background: #ffd966;
+    }
+
+    .vip-publicacao-item .pub-respostas {
+      margin-top: 0.8rem;
+      border-top: 1px solid #e9ecf0;
+      padding-top: 0.8rem;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item {
+      background: #fafbfc;
+      border-radius: 16px;
+      padding: 0.6rem 1rem;
+      margin-bottom: 0.5rem;
+      border-left: 3px solid #f0c040;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-autor {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #0b1a2e;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-texto {
+      font-size: 0.85rem;
+      color: #2d3f57;
+      margin: 0.2rem 0;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-data {
+      font-size: 0.7rem;
+      color: #7f96b0;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-acoes {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-acoes button {
+      padding: 0.1rem 0.5rem;
+      border-radius: 40px;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      font-weight: 600;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-acoes .btn-excluir-resp {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .vip-publicacao-item .pub-respostas .resposta-item .resp-acoes .btn-excluir-resp:hover {
+      background: #c82333;
+    }
+
+    .vip-publicacao-item .pub-respostas .form-resposta {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .vip-publicacao-item .pub-respostas .form-resposta textarea {
+      flex: 1;
+      border: 1px solid #d0dae8;
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      outline: none;
+      transition: 0.2s;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 50px;
+      min-width: 150px;
+    }
+
+    .vip-publicacao-item .pub-respostas .form-resposta textarea:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+    }
+
+    .vip-publicacao-item .pub-respostas .form-resposta button {
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      font-weight: 600;
+      background: #0b1a2e;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .vip-publicacao-item .pub-respostas .form-resposta button:hover {
+      background: #1f3a57;
+    }
+
+    .sem-publicacoes {
+      text-align: center;
+      padding: 2rem;
+      color: #5a6f88;
+    }
+
+    .sem-publicacoes i {
+      font-size: 2.5rem;
+      color: #d0dae8;
+      margin-bottom: 0.5rem;
+    }
+
+    .vip-publicacao-form-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1900;
+    }
+
+    .vip-publicacao-form-modal.active {
+      display: flex;
+    }
+
+    .vip-publicacao-form-card {
+      background: #ffffff;
+      max-width: 600px;
+      width: 94%;
+      border-radius: 40px;
+      padding: 2rem 2rem 2rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeSlide 0.3s ease;
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .vip-publicacao-form-card .close-form-pub {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      color: #7f8c9e;
+      cursor: pointer;
+      transition: 0.2s;
+      background: none;
+      border: none;
+    }
+
+    .vip-publicacao-form-card .close-form-pub:hover {
+      color: #0b1a2e;
+      transform: rotate(90deg);
+    }
+
+    .vip-publicacao-form-card h3 {
+      color: #0b1a2e;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 3px solid #f0c040;
+      padding-bottom: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .vip-publicacao-form-card h3 i {
+      color: #f0c040;
+    }
+
+    .vip-publicacao-form-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .vip-publicacao-form-card label {
+      display: block;
+      font-weight: 600;
+      color: #0b1a2e;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .vip-publicacao-form-card label .obrigatorio {
+      color: #dc3545;
+      margin-left: 0.2rem;
+    }
+
+    .vip-publicacao-form-card input,
+    .vip-publicacao-form-card textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #d0dae8;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+      background: #f5f8fc;
+      font-family: inherit;
+    }
+
+    .vip-publicacao-form-card input:focus,
+    .vip-publicacao-form-card textarea:focus {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 3px #f0c04033;
+      background: #fff;
+    }
+
+    .vip-publicacao-form-card textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .vip-publicacao-form-card .btn-salvar-pub {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0b1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .vip-publicacao-form-card .btn-salvar-pub:hover {
+      background: #1f3a57;
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 900px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        border-radius: 30px;
+        padding: 1.2rem;
+      }
+
+      .nav-links {
+        justify-content: center;
+      }
+
+      .login-container {
+        padding: 2rem 1.5rem;
+      }
+
+      .loja-card {
+        padding: 1.5rem 1rem;
+      }
+
+      .produto-item {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+
+      .produto-item .produto-actions {
+        justify-content: center;
+      }
+
+      .criar-produto .form-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn-salvar-produto {
+        width: 100%;
+      }
+
+      .classificados-card {
+        padding: 1.5rem 1rem;
+      }
+
+      .anuncio-item {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+
+      .anuncio-item .anuncio-img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+      }
+
+      .anuncio-item .anuncio-actions {
+        justify-content: center;
+      }
+
+      .classificados-filtros {
+        flex-direction: column;
+      }
+
+      .classificados-filtros .btn-novo-anuncio {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .vip-acesso-card {
+        padding: 1.5rem 1rem;
+      }
+
+      .vip-acesso-tabela table {
+        font-size: 0.65rem;
+      }
+
+      .vip-acesso-tabela table th,
+      .vip-acesso-tabela table td {
+        padding: 0.3rem 0.3rem;
+      }
+
+      .vip-acesso-tabela .acoes-usuario button {
+        font-size: 0.5rem;
+        padding: 0.1rem 0.4rem;
+      }
+
+      .admin-menu-vip {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .admin-menu-vip button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .vip-acesso-filtros {
+        flex-direction: column;
+      }
+
+      .vip-pagina-card {
+        padding: 1.5rem 1rem;
+      }
+
+      .vip-pagina-filtros {
+        flex-direction: column;
+      }
+
+      .vip-pagina-filtros .btn-nova-publicacao {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .vip-publicacao-item .pub-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .vip-publicacao-item .pub-respostas .form-resposta {
+        flex-direction: column;
+      }
+
+      .vip-publicacao-item .pub-respostas .form-resposta button {
+        width: 100%;
+      }
+
+      .classificados-tabs {
+        justify-content: center;
+      }
+
+      .classificados-tabs button {
+        font-size: 0.8rem;
+        padding: 0.3rem 1rem;
+      }
+
+      .chat-container {
+        min-height: 200px;
+        max-height: 40vh;
+      }
+
+      .chat-mensagens {
+        min-height: 150px;
+        max-height: 30vh;
+      }
+
+      .chat-input-area {
+        flex-wrap: wrap;
+      }
+
+      .chat-input-area input {
+        min-width: 100%;
+      }
+
+      .chat-input-area .btn-enviar-chat {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .sucata-form-card {
+        padding: 1.5rem 1rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .sucata-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .pix-card {
+        padding: 1.8rem 1.2rem;
+      }
+
+      .anuncio-item .anuncio-info .anuncio-contato {
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .vip-acesso-tabela table {
+        font-size: 0.55rem;
+      }
+
+      .vip-acesso-tabela table th,
+      .vip-acesso-tabela table td {
+        padding: 0.2rem 0.2rem;
+      }
+
+      .vip-acesso-tabela .acoes-usuario button {
+        font-size: 0.45rem;
+        padding: 0.05rem 0.3rem;
+      }
+
+      .classificados-tabs button {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+      }
+
+      .chat-container {
+        min-height: 150px;
+        max-height: 35vh;
+      }
+
+      .chat-mensagens {
+        min-height: 100px;
+        max-height: 25vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== TELA DE LOGIN ===== -->
+  <div class="login-container" id="loginContainer">
+    <div class="logo">
+      <h1><i class="fas fa-gamepad"></i> Smart<span>Online</span></h1>
+      <p>Mercado Gamer</p>
+    </div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="form-group">
+        <label><i class="fas fa-user" style="margin-right:0.3rem;"></i> Usuário</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user"></i>
+          <input type="text" id="loginUser" placeholder="Digite seu usuário">
+        </div>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock" style="margin-right:0.3rem;"></i> Senha</label>
+        <div class="input-wrapper">
+          <i class="fas fa-key"></i>
+          <input type="password" id="loginPassword" placeholder="Digite sua senha">
+        </div>
+      </div>
+      <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt"></i> Entrar
+      </button>
+      <div class="error-msg" id="errorMsg">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Usuário ou senha incorretos!</span>
+      </div>
+
+      <div class="divider">
+        <span>ou</span>
+      </div>
+
+      <button type="button" class="btn-visitante" id="btnVisitante">
+        <i class="fas fa-user-friends"></i> Entrar como Visitante
+      </button>
+      <p style="text-align:center; font-size:0.7rem; color:#7f96b0; margin-top:0.5rem;">
+        <i class="fas fa-eye"></i> Visualize o site sem fazer login
+      </p>
+    </form>
+  </div>
+
+  <!-- ===== SITE PRINCIPAL ===== -->
+  <div class="site-container" id="siteContainer">
+    <div class="container">
+
+      <!-- HEADER -->
+      <header class="header">
+        <div class="logo-site">
+          <h1><i class="fas fa-gamepad" style="color: #f0c040;"></i> Smart<span>Online</span></h1>
+        </div>
+        <div class="nav-links">
+          <a id="btnLoja"><i class="fas fa-store"></i> Loja</a>
+          <a id="btnClassificados"><i class="fas fa-tag"></i> CLASSIFICADOS</a>
+          <a href="#" class="btn-membro" id="btnAreaVIP"><i class="fas fa-crown"></i> Área VIP</a>
+          <div id="badgeContainer"></div>
+          <button class="btn-sair" id="btnSair"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+      </header>
+
+      <!-- GRID PRINCIPAL: SUCATA + MEMBROS -->
+      <div class="grid-2col">
+        <!-- SEÇÃO SUCATA -->
+        <section class="sucata-section">
+          <div
+            style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem;">
+            <h2 style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
+              <i class="fas fa-recycle"></i> Sucata Game · venda seu videogame
+            </h2>
+            <button class="btn-adicionar-sucata" id="btnAdicionarSucata" style="display:none;">
+              <i class="fas fa-plus-circle"></i> Adicionar
+            </button>
+          </div>
+          <div class="sucata-grid" id="sucataGrid">
+            <!-- Os cards serão renderizados via JavaScript -->
+          </div>
+          <p
+            style="margin-top:1.2rem; color:#3b5777; font-size:0.9rem; background:#eef2f7; padding:0.3rem 1rem; border-radius:60px; display:inline-block;">
+            <i class="fas fa-arrow-up"></i> Anuncie seu console usado · preço justo
+          </p>
+        </section>
+
+        <!-- PAINEL MEMBROS -->
+        <aside class="membros-panel">
+          <h2><i class="fas fa-users"></i> SmartOnline</h2>
+          <p style="font-weight:300; margin-bottom:0.2rem;">Grupo exclusivo de gamers</p>
+          <div class="preco-membro"><i class="fas fa-tag"></i> R$ 0,97</div>
+          <p style="font-size:0.9rem; opacity:0.8;">acesso vitalício · por pessoa</p>
+          <button class="btn-membro-assinar" id="btnAssinarPix">
+            <i class="fas fa-crown"></i> ASSINAR AGORA
+          </button>
+          <ul class="lista-beneficios">
+            <li><i class="fas fa-check-circle"></i> Descontos em jogos digitais</li>
+            <li><i class="fas fa-check-circle"></i> Sorteios mensais</li>
+            <li><i class="fas fa-check-circle"></i> Suporte prioritário</li>
+            <li><i class="fas fa-check-circle"></i> Conteúdo antecipado</li>
+          </ul>
+          <div
+            style="margin-top:1rem; background:#1f3a57; border-radius:50px; padding:0.3rem 1rem; font-size:0.8rem; display:flex; gap:0.3rem; align-items:center;">
+            <i class="fas fa-user-plus"></i> <span>+250 membros ativos</span>
+          </div>
+        </aside>
+      </div>
+
+      <!-- GRUPO EXCLUSIVO VIP -->
+      <section class="grupo-exclusivo" id="grupoVIP">
+        <h3><i class="fas fa-crown"></i> Membros SmartOnline · exclusivo</h3>
+        <div
+          style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.8rem; background:#f5f8fc; padding:0.5rem 1rem; border-radius:60px;">
+          <span style="background:#0b1a2e; color:#f0c040; padding:0.1rem 1rem; border-radius:40px; font-size:0.8rem;"><i
+              class="fas fa-star"></i> VIP</span>
+          <span style="color:#1f3a57;"><i class="fas fa-users"></i> 12 membros online agora</span>
+        </div>
+        <div id="listaMembrosVIP">
+          <!-- Renderizado via JavaScript -->
+        </div>
+      </section>
+
+      <!-- ÁREA ADMIN -->
+      <div class="admin-area" id="adminArea">
+        <div class="admin-cred">
+          <i class="fas fa-user-tie"></i>
+          <span><strong style="color:#0b1a2e;">Acesso ADM</strong> · logado</span>
+          <span
+            style="background:#1f2e3f; color:#f0c040; padding:0.1rem 0.8rem; border-radius:40px; font-size:0.8rem;"><i
+              class="fas fa-lock"></i> logado</span>
+        </div>
+        <div class="admin-menu-vip">
+          <button id="btnConfigVIP"><i class="fas fa-cog"></i> Membros VIP</button>
+          <button id="btnAcessoVIP"><i class="fas fa-users-cog"></i> Acesso VIP</button>
+        </div>
+      </div>
+
+      <footer>
+        <i class="fas fa-gamepad" style="color:#f0c040;"></i> SmartOnline · mercado gamer · sucata e membros exclusivos
+      </footer>
+    </div>
+  </div>
+
+  <!-- ===== MODAIS EXISTENTES ===== -->
+  <div class="pix-modal" id="pixModal">
+    <div class="pix-card">
+      <button class="close-pix" id="fecharPixModal">&times;</button>
+      <h2><i class="fas fa-qrcode" style="color:#f0c040;"></i> Pix</h2>
+      <p class="pix-sub">Envie o valor de <strong>R$ 0,97</strong> para a chave abaixo</p>
+      <div class="pix-chave-box">
+        <i class="fas fa-key"></i>
+        <span id="chavePix">61169c87-70f2-4d35-992f-55aa68bac30f</span>
+      </div>
+      <button class="btn-copiar-pix" id="copiarChavePix">
+        <i class="fas fa-copy"></i> Copiar chave Pix
+      </button>
+      <p class="pix-info">Após o pagamento, seu acesso será liberado em até 5 minutos.</p>
+    </div>
+  </div>
+
+  <div class="loja-modal" id="lojaModal">
+    <div class="loja-card">
+      <button class="close-loja" id="fecharLojaModal">&times;</button>
+      <h2>
+        <i class="fas fa-store-alt"></i> Loja SmartOnline
+        <span id="lojaSubtitle">— administre seus produtos</span>
+      </h2>
+      <div class="loja-produtos" id="lojaProdutos"></div>
+      <div class="criar-produto" id="criarProdutoArea">
+        <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#0b1a2e; font-size:0.9rem;"><i class="fas fa-edit"></i> Gerenciar
+            produtos</span>
+          <span class="editando-label" id="editandoLabel" style="display:none;">Editando</span>
+          <span style="font-size:0.7rem; color:#5a6f88; margin-left:auto;">Apenas o administrador pode postar</span>
+        </div>
+        <div class="form-row">
+          <input type="text" id="produtoNome" placeholder="Nome do produto (ex: PS5)" style="flex:2;">
+          <input type="text" id="produtoPreco" placeholder="Preço (ex: R$ 2.500)" style="flex:1;">
+        </div>
+        <div class="form-row">
+          <textarea id="produtoDesc" placeholder="Descrição do produto..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="file-input-wrapper">
+            <button class="btn-img-produto"><i class="fas fa-image"></i> Adicionar foto</button>
+            <input type="file" id="produtoImagemInput" accept="image/*">
+          </div>
+          <span class="preview-filename" id="previewNomeArquivo">nenhuma imagem</span>
+          <button class="btn-salvar-produto" id="btnSalvarProduto">
+            <i class="fas fa-plus"></i> Publicar
+          </button>
+          <button class="btn-salvar-produto" id="btnCancelarEdicao" style="display:none; background:#6c757d;">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CLASSIFICADOS SMARTONLINE ===== -->
+  <div class="classificados-modal" id="classificadosModal">
+    <div class="classificados-card">
+      <button class="close-classificados" id="fecharClassificados">&times;</button>
+      <h2><i class="fas fa-tag"></i> CLASSIFICADOS SMARTONLINE</h2>
+      <div class="classificados-tabs">
+        <button class="active" data-tab="anuncios"><i class="fas fa-list"></i> Anúncios</button>
+        <button data-tab="chat"><i class="fas fa-comments"></i> Chat</button>
+      </div>
+      <div class="classificados-content">
+        <div class="tab-panel active" id="tab-anuncios">
+          <div class="classificados-filtros">
+            <input type="text" id="filtroTitulo" placeholder="🔍 Pesquisar por título..." oninput="filtrarTitulo()">
+            <select id="filtroPeriodo" onchange="filtrarPeriodo()">
+              <option value="todos">📅 Todos</option>
+              <option value="hoje">Hoje</option>
+              <option value="7dias">Últimos 7 dias</option>
+              <option value="30dias">Últimos 30 dias</option>
+            </select>
+            <button class="btn-novo-anuncio" id="btnNovoAnuncio">
+              <i class="fas fa-plus-circle"></i> Novo anúncio
+            </button>
+          </div>
+          <div class="classificados-lista" id="classificadosLista"></div>
+        </div>
+        <div class="tab-panel" id="tab-chat">
+          <div class="chat-container">
+            <div class="chat-mensagens" id="chatMensagens"></div>
+            <div class="chat-input-area">
+              <input type="text" id="chatInput" placeholder="Digite sua mensagem..."
+                onkeydown="if(event.key === 'Enter') enviarMensagem()">
+              <button class="btn-enviar-chat" id="btnEnviarChat" onclick="enviarMensagem()">
+                <i class="fas fa-paper-plane"></i> Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FORMULÁRIO DE ANÚNCIO ===== -->
+  <div class="anuncio-form-modal" id="anuncioFormModal">
+    <div class="anuncio-form-card">
+      <button class="close-form" id="fecharFormAnuncio">&times;</button>
+      <h3><i class="fas fa-edit"></i> <span id="formTitulo">Novo Anúncio</span></h3>
+      <form id="anuncioForm">
+        <input type="hidden" id="anuncioEditId" value="">
+        <div class="form-group">
+          <label>Título do anúncio <span class="obrigatorio">*</span></label>
+          <input type="text" id="anuncioTitulo" placeholder="Ex: PlayStation 5 usado" required>
+        </div>
+        <div class="form-group">
+          <label>Seu nome <span class="obrigatorio">*</span></label>
+          <input type="text" id="anuncioNome" placeholder="Digite seu nome" required>
+        </div>
+        <div class="form-group">
+          <label>Email <span class="obrigatorio">*</span></label>
+          <input type="email" id="anuncioEmail" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone para contato <span class="obrigatorio">*</span></label>
+          <input type="text" id="anuncioTelefone" placeholder="(00) 00000-0000" required>
+        </div>
+        <div class="form-group">
+          <label>Descrição completa do produto <span class="obrigatorio">*</span></label>
+          <textarea id="anuncioDesc" placeholder="Descreva detalhadamente o produto..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Valor <span class="obrigatorio">*</span></label>
+          <input type="text" id="anuncioValor" placeholder="R$ 0,00" required>
+        </div>
+        <div class="form-group">
+          <label>Foto do produto</label>
+          <div class="file-input-wrapper">
+            <button class="btn-img-anuncio" type="button"><i class="fas fa-image"></i> Clique para selecionar uma
+              foto</button>
+            <input type="file" id="anuncioImagem" accept="image/*">
+          </div>
+          <span class="preview-filename-form" id="previewNomeImagem">Nenhuma imagem selecionada</span>
+        </div>
+        <button type="submit" class="btn-publicar">
+          <i class="fas fa-paper-plane"></i> <span id="btnPublicarTexto">Publicar anúncio</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SUCATA - FORMULÁRIO DE EDIÇÃO/CRIAÇÃO ===== -->
+  <div class="sucata-form-modal" id="sucataFormModal">
+    <div class="sucata-form-card">
+      <button class="close-sucata-form" id="fecharSucataForm">&times;</button>
+      <h3><i class="fas fa-edit"></i> <span id="sucataFormTitulo">Nova Sucata</span></h3>
+      <form id="sucataForm" enctype="multipart/form-data">
+        <input type="hidden" id="sucataEditId" value="">
+        <div class="form-group">
+          <label>Título <span class="obrigatorio">*</span></label>
+          <input type="text" id="sucataTitulo" placeholder="Ex: PlayStation 3 (fat)" required>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea id="sucataDesc" placeholder="Descrição do produto..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Preço <span class="obrigatorio">*</span></label>
+          <input type="text" id="sucataPreco" placeholder="R$ 187" required>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <input type="text" id="sucataCategoria" placeholder="Ex: Console, Acessório, Jogo...">
+        </div>
+        <div class="form-group">
+          <label>Quantidade</label>
+          <input type="number" id="sucataQuantidade" placeholder="1" min="1">
+        </div>
+        <div class="form-group">
+          <label>Unidade</label>
+          <input type="text" id="sucataUnidade" placeholder="Ex: unidade, kg, lote...">
+        </div>
+        <div class="form-group">
+          <label>Localização</label>
+          <input type="text" id="sucataLocalizacao" placeholder="Ex: São Paulo, SP">
+        </div>
+        <div class="form-group">
+          <label>Status <span class="obrigatorio">*</span></label>
+          <select id="sucataStatus" required>
+            <option value="Disponível">Disponível</option>
+            <option value="Reservada">Reservada</option>
+            <option value="Vendida">Vendida</option>
+            <option value="Inativa">Inativa</option>
+          </select>
+        </div>
+
+        <!-- CAMPO DE UPLOAD DE IMAGEM (substitui o campo de URL) -->
+        <div class="form-group">
+          <label>Imagem do produto</label>
+          <div class="file-input-wrapper">
+            <button class="btn-img-sucata" type="button"><i class="fas fa-image"></i> Clique para selecionar uma
+              imagem</button>
+            <input type="file" id="sucataImagemInput" accept="image/*">
+          </div>
+          <span class="preview-filename-sucata" id="previewNomeImagemSucata">Nenhuma imagem selecionada</span>
+          <img id="previewImagemSucata" class="preview-imagem-sucata" alt="Pré-visualização da imagem">
+        </div>
+
+        <button type="submit" class="btn-salvar-sucata">
+          <i class="fas fa-save"></i> <span id="sucataBtnTexto">Salvar</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== OUTROS MODAIS ===== -->
+  <div class="vip-email-modal" id="vipEmailModal">
+    <div class="vip-email-card">
+      <button class="close-vip-email" id="fecharVipEmail">&times;</button>
+      <h3><i class="fas fa-envelope"></i> Verificar Cadastro</h3>
+      <form id="vipEmailForm">
+        <div class="form-group">
+          <label>E-mail <span class="obrigatorio">*</span></label>
+          <input type="email" id="vipEmailVerificar" placeholder="seu@email.com" required>
+        </div>
+        <button type="submit" class="btn-continuar-email">
+          <i class="fas fa-arrow-right"></i> Continuar
+        </button>
+        <div class="msg-erro-email" id="vipEmailErro">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="vipEmailErroMsg">E-mail inválido!</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="vip-cadastro-modal" id="vipCadastroModal">
+    <div class="vip-cadastro-card">
+      <button class="close-vip-cadastro" id="fecharVipCadastro">&times;</button>
+      <h3><i class="fas fa-user-plus"></i> Novo Cadastro VIP</h3>
+      <form id="vipCadastroForm">
+        <div class="form-group">
+          <label>Nome completo <span class="obrigatorio">*</span></label>
+          <input type="text" id="vipNome" placeholder="Digite seu nome completo" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail <span class="obrigatorio">*</span></label>
+          <input type="email" id="vipEmailCadastro" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Senha <span class="obrigatorio">*</span></label>
+          <input type="password" id="vipSenha" placeholder="Crie uma senha" required>
+        </div>
+        <div class="form-group">
+          <label>Data de nascimento <span class="obrigatorio">*</span></label>
+          <input type="date" id="vipDataNasc" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="tel" id="vipTelefone" placeholder="(00) 00000-0000">
+        </div>
+        <div class="form-group">
+          <label>CPF</label>
+          <input type="text" id="vipCpf" placeholder="000.000.000-00">
+        </div>
+        <div class="form-group">
+          <label>Cidade</label>
+          <input type="text" id="vipCidade" placeholder="Sua cidade">
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <input type="text" id="vipEstado" placeholder="UF">
+        </div>
+        <div class="form-group">
+          <label>Observações</label>
+          <input type="text" id="vipObservacoes" placeholder="Observações adicionais">
+        </div>
+        <button type="submit" class="btn-salvar-vip">
+          <i class="fas fa-save"></i> Salvar Cadastro
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="vip-pagamento-modal" id="vipPagamentoModal">
+    <div class="vip-pagamento-card">
+      <button class="close-pagamento" id="fecharVipPagamento">&times;</button>
+      <div class="pagamento-icon"><i class="fas fa-check-circle"></i></div>
+      <h3>✅ Cadastro realizado com sucesso!</h3>
+      <p>Para liberar seu acesso VIP é necessário realizar o pagamento da mensalidade via <strong>PIX</strong>.</p>
+      <div class="valor-destaque" id="vipValorExibido">R$ 9,90</div>
+      <p>Após efetuar o pagamento envie o comprovante para o WhatsApp abaixo:</p>
+      <div class="whatsapp-destaque" id="vipWhatsAppExibido"><i class="fab fa-whatsapp"></i> (14) 99999-9999</div>
+      <p style="font-size:0.85rem; color:#5a6f88; margin-top:0.5rem;">Seu acesso será liberado após confirmação do
+        pagamento.</p>
+      <button class="btn-fechar-pagamento" id="btnFecharPagamento">Fechar</button>
+    </div>
+  </div>
+
+  <div class="vip-config-modal" id="vipConfigModal">
+    <div class="vip-config-card">
+      <button class="close-vip-config" id="fecharVipConfig">&times;</button>
+      <h3><i class="fas fa-cog"></i> Configuração Membros VIP</h3>
+      <form id="vipConfigForm">
+        <div class="form-group">
+          <label>Valor Mensal</label>
+          <input type="text" id="vipConfigValor" placeholder="R$ 9,90">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp</label>
+          <input type="text" id="vipConfigWhatsApp" placeholder="(14) 99999-9999">
+        </div>
+        <div class="config-actions">
+          <button type="submit" class="btn-salvar-config"><i class="fas fa-save"></i> Salvar</button>
+          <button type="button" class="btn-excluir-config" id="btnExcluirConfig"><i class="fas fa-trash"></i>
+            Excluir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="vip-acesso-modal" id="vipAcessoModal">
+    <div class="vip-acesso-card">
+      <button class="close-vip-acesso" id="fecharVipAcesso">&times;</button>
+      <h2><i class="fas fa-user-shield"></i> Acesso VIP</h2>
+      <div class="vip-acesso-filtros">
+        <input type="text" id="filtroAcesso" placeholder="🔍 Pesquisar por nome, email, telefone..."
+          oninput="filtrarAcesso()">
+        <select id="filtroStatusAcesso" onchange="filtrarAcesso()">
+          <option value="todos">📊 Todos os status</option>
+          <option value="Ativo">🟢 Ativo</option>
+          <option value="Pendente">🟡 Pendente</option>
+          <option value="Bloqueado">🔴 Bloqueado</option>
+          <option value="Cancelado">⚫ Cancelado</option>
+        </select>
+      </div>
+      <div class="vip-acesso-tabela" id="vipAcessoTabela"></div>
+    </div>
+  </div>
+
+  <div class="vip-login-modal" id="vipLoginModal">
+    <div class="vip-login-card">
+      <button class="close-vip-login" id="fecharVipLogin">&times;</button>
+      <h3><i class="fas fa-sign-in-alt"></i> Acesso VIP</h3>
+      <form id="vipLoginForm">
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="vipLoginEmail" placeholder="seu@email.com" readonly>
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="vipLoginSenha" placeholder="Digite sua senha" required>
+        </div>
+        <button type="submit" class="btn-logar-vip">
+          <i class="fas fa-crown"></i> Entrar na Área VIP
+        </button>
+        <div class="msg-erro-vip" id="vipLoginErro">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="vipLoginErroMsg">Senha incorreta!</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="vip-pagina-modal" id="vipPaginaModal">
+    <div class="vip-pagina-card">
+      <button class="close-vip-pagina" id="fecharVipPagina">&times;</button>
+      <h2><i class="fas fa-crown"></i> ÁREA VIP</h2>
+      <div class="vip-pagina-filtros">
+        <input type="text" id="filtroPublicacao" placeholder="🔍 Pesquisar publicações..."
+          oninput="filtrarPublicacoes()">
+        <button class="btn-nova-publicacao" id="btnNovaPublicacao">
+          <i class="fas fa-plus-circle"></i> Nova Publicação
+        </button>
+      </div>
+      <div class="vip-pagina-lista" id="vipPaginaLista"></div>
+    </div>
+  </div>
+
+  <div class="vip-publicacao-form-modal" id="vipPublicacaoFormModal">
+    <div class="vip-publicacao-form-card">
+      <button class="close-form-pub" id="fecharFormPub">&times;</button>
+      <h3><i class="fas fa-edit"></i> <span id="formPubTitulo">Nova Publicação</span></h3>
+      <form id="vipPublicacaoForm">
+        <input type="hidden" id="pubEditId" value="">
+        <div class="form-group">
+          <label>Título <span class="obrigatorio">*</span></label>
+          <input type="text" id="pubTitulo" placeholder="Título da publicação" required>
+        </div>
+        <div class="form-group">
+          <label>Conteúdo <span class="obrigatorio">*</span></label>
+          <textarea id="pubConteudo" placeholder="Escreva o conteúdo da sua publicação..." required></textarea>
+        </div>
+        <button type="submit" class="btn-salvar-pub">
+          <i class="fas fa-save"></i> <span id="btnPubTexto">Publicar</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    // ============================================================
+    // ===== IMPORTAÇÕES FIREBASE =====
+    // ============================================================
+
+    import { initializeApp } from "firebase/app";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      setDoc,
+      getDoc,
+      getDocs,
+      updateDoc,
+      deleteDoc,
+      query,
+      where,
+      orderBy,
+      Timestamp
+    } from "firebase/firestore";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAL-5tgcDYe_vvErSbx2-8gVawaD6jWqr0",
+      authDomain: "smartonline-685c1.firebaseapp.com",
+      projectId: "smartonline-685c1",
+      storageBucket: "smartonline-685c1.firebasestorage.app",
+      messagingSenderId: "547189155881",
+      appId: "1:547189155881:web:00ef6faf11972cbf3b9438"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ============================================================
+    // ===== SERVIÇO DE DADOS - FIREBASE =====
+    // ============================================================
+
+    const COLLECTIONS = {
+      CONFIG_VIP: 'configVIP',
+      USUARIOS_VIP: 'usuariosVIP',
+      ANUNCIOS: 'anuncios',
+      PUBLICACOES_VIP: 'publicacoesVIP',
+      CHAT_MENSAGENS: 'chatMensagens',
+      SUCATAS: 'sucatas',
+      PRODUTOS_LOJA: 'produtosLoja'
+    };
+
+    // --- FUNÇÕES REUTILIZÁVEIS ---
+
+    async function salvarDados(colecao, dados, id = null) {
+      try {
+        if (id) {
+          const docRef = doc(db, colecao, id);
+          await setDoc(docRef, dados);
+          return { id, ...dados };
+        } else {
+          const docRef = await addDoc(collection(db, colecao), dados);
+          return { id: docRef.id, ...dados };
+        }
+      } catch (error) {
+        console.error(`Erro ao salvar em ${colecao}:`, error);
+        throw error;
+      }
+    }
+
+    async function carregarDados(colecao, campoOrdem = null, direcao = 'asc') {
+      try {
+        let q;
+        if (campoOrdem) {
+          q = query(collection(db, colecao), orderBy(campoOrdem, direcao));
+        } else {
+          q = collection(db, colecao);
+        }
+        const snapshot = await getDocs(q);
+        const dados = [];
+        snapshot.forEach(doc => {
+          dados.push({ id: doc.id, ...doc.data() });
+        });
+        return dados;
+      } catch (error) {
+        console.error(`Erro ao carregar ${colecao}:`, error);
+        return [];
+      }
+    }
+
+    async function carregarDadosComFiltro(colecao, campo, valor) {
+      try {
+        const q = query(collection(db, colecao), where(campo, '==', valor));
+        const snapshot = await getDocs(q);
+        const dados = [];
+        snapshot.forEach(doc => {
+          dados.push({ id: doc.id, ...doc.data() });
+        });
+        return dados;
+      } catch (error) {
+        console.error(`Erro ao carregar ${colecao} com filtro:`, error);
+        return [];
+      }
+    }
+
+    async function editarDados(colecao, id, dados) {
+      try {
+        const docRef = doc(db, colecao, id);
+        await updateDoc(docRef, dados);
+        return { id, ...dados };
+      } catch (error) {
+        console.error(`Erro ao editar em ${colecao}:`, error);
+        throw error;
+      }
+    }
+
+    async function excluirDados(colecao, id) {
+      try {
+        const docRef = doc(db, colecao, id);
+        await deleteDoc(docRef);
+        return id;
+      } catch (error) {
+        console.error(`Erro ao excluir de ${colecao}:`, error);
+        throw error;
+      }
+    }
+
+    async function buscarDados(colecao, campo, valor) {
+      try {
+        const q = query(collection(db, colecao), where(campo, '==', valor));
+        const snapshot = await getDocs(q);
+        const dados = [];
+        snapshot.forEach(doc => {
+          dados.push({ id: doc.id, ...doc.data() });
+        });
+        return dados;
+      } catch (error) {
+        console.error(`Erro ao buscar em ${colecao}:`, error);
+        return [];
+      }
+    }
+
+    // --- FUNÇÕES ESPECÍFICAS ---
+
+    async function carregarConfigVIP() {
+      const dados = await carregarDados(COLLECTIONS.CONFIG_VIP);
+      if (dados.length > 0) return dados[0];
+      return { valor: 'R$ 9,90', whatsapp: '(14) 99999-9999' };
+    }
+
+    async function salvarConfigVIP(config) {
+      const existing = await carregarDados(COLLECTIONS.CONFIG_VIP);
+      if (existing.length > 0) {
+        return await editarDados(COLLECTIONS.CONFIG_VIP, existing[0].id, config);
+      } else {
+        return await salvarDados(COLLECTIONS.CONFIG_VIP, config);
+      }
+    }
+
+    async function carregarUsuariosVIP() {
+      return await carregarDados(COLLECTIONS.USUARIOS_VIP);
+    }
+
+    async function carregarAnuncios() {
+      return await carregarDados(COLLECTIONS.ANUNCIOS, 'data', 'desc');
+    }
+
+    async function carregarPublicacoesVIP() {
+      return await carregarDados(COLLECTIONS.PUBLICACOES_VIP, 'data', 'desc');
+    }
+
+    async function carregarMensagensChat() {
+      return await carregarDados(COLLECTIONS.CHAT_MENSAGENS, 'data', 'asc');
+    }
+
+    async function carregarSucatas() {
+      return await carregarDados(COLLECTIONS.SUCATAS);
+    }
+
+    async function carregarProdutosLoja() {
+      return await carregarDados(COLLECTIONS.PRODUTOS_LOJA);
+    }
+
+    // ============================================================
+    // ===== VARIÁVEIS GLOBAIS =====
+    // ============================================================
+
+    const USER = 'SOGAMES';
+    const PASS = '202606Ma';
+
+    let configVIP = { valor: 'R$ 9,90', whatsapp: '(14) 99999-9999' };
+    let usuariosVIP = [];
+    let anuncios = [];
+    let publicacoesVIP = [];
+    let mensagensChat = [];
+    let sucatas = [];
+    let produtos = [];
+
+    let usuarioTipo = 'visitante';
+    let usuarioVIPLogado = null;
+    let editandoId = null;
+    let acessoEditandoId = null;
+    let filtroAcessoAtual = '';
+    let filtroStatusAcessoAtual = 'todos';
+    let ordemAcesso = { campo: 'dataCadastro', direcao: 'desc' };
+    let filtroTituloAtual = '';
+    let filtroPeriodoAtual = 'todos';
+    let filtroPublicacaoAtual = '';
+    let pubEditandoId = null;
+    let sucataEditandoId = null;
+
+    // ============================================================
+    // ===== ELEMENTOS DOM =====
+    // ============================================================
+
+    const loginContainer = document.getElementById('loginContainer');
+    const siteContainer = document.getElementById('siteContainer');
+    const loginForm = document.getElementById('loginForm');
+    const loginUser = document.getElementById('loginUser');
+    const loginPassword = document.getElementById('loginPassword');
+    const errorMsg = document.getElementById('errorMsg');
+    const btnVisitante = document.getElementById('btnVisitante');
+    const lojaProdutos = document.getElementById('lojaProdutos');
+    const produtoNome = document.getElementById('produtoNome');
+    const produtoPreco = document.getElementById('produtoPreco');
+    const produtoDesc = document.getElementById('produtoDesc');
+    const produtoImagemInput = document.getElementById('produtoImagemInput');
+    const previewNomeArquivo = document.getElementById('previewNomeArquivo');
+    const btnSalvar = document.getElementById('btnSalvarProduto');
+    const btnCancelar = document.getElementById('btnCancelarEdicao');
+    const editandoLabel = document.getElementById('editandoLabel');
+    const btnLoja = document.getElementById('btnLoja');
+    const lojaModal = document.getElementById('lojaModal');
+    const fecharLoja = document.getElementById('fecharLojaModal');
+    const btnAssinar = document.getElementById('btnAssinarPix');
+    const modalPix = document.getElementById('pixModal');
+    const fecharPix = document.getElementById('fecharPixModal');
+    const copiarPix = document.getElementById('copiarChavePix');
+    const chaveSpan = document.getElementById('chavePix');
+
+    // ============================================================
+    // ===== FUNÇÕES DE LOGIN =====
+    // ============================================================
+
+    function entrarNoSite(tipo) {
+      usuarioTipo = tipo;
+      loginContainer.style.display = 'none';
+      siteContainer.classList.add('active');
+
+      if (tipo === 'visitante') {
+        siteContainer.classList.add('modo-visitante');
+        document.getElementById('adminArea').style.display = 'none';
+        document.getElementById('criarProdutoArea').style.display = 'none';
+        document.getElementById('lojaSubtitle').textContent = '— visualização';
+        document.getElementById('badgeContainer').innerHTML = `
+        <div class="user-badge">
+          <i class="fas fa-user"></i> Visitante
+        </div>
+      `;
+      } else {
+        siteContainer.classList.remove('modo-visitante');
+        document.getElementById('adminArea').style.display = 'flex';
+        document.getElementById('criarProdutoArea').style.display = 'block';
+        document.getElementById('lojaSubtitle').textContent = '— administre seus produtos';
+        document.getElementById('badgeContainer').innerHTML = `
+        <div class="admin-badge">
+          <i class="fas fa-user-shield"></i> ADM: <strong>logado</strong>
+        </div>
+      `;
+      }
+
+      const grupoVIP = document.getElementById('grupoVIP');
+      if (tipo === 'admin') {
+        grupoVIP.classList.remove('hidden');
+      } else {
+        grupoVIP.classList.add('hidden');
+      }
+
+      loginUser.value = '';
+      loginPassword.value = '';
+      errorMsg.classList.remove('show');
+
+      // Carregar todos os dados do Firebase
+      carregarTodosDados();
+    }
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const user = loginUser.value.trim();
+      const pass = loginPassword.value.trim();
+
+      if (user === USER && pass === PASS) {
+        entrarNoSite('admin');
+      } else {
+        errorMsg.classList.add('show');
+        setTimeout(() => {
+          errorMsg.classList.remove('show');
+        }, 4000);
+      }
+    });
+
+    btnVisitante.addEventListener('click', function () {
+      entrarNoSite('visitante');
+    });
+
+    document.getElementById('btnSair').addEventListener('click', function () {
+      siteContainer.classList.remove('active');
+      siteContainer.classList.remove('modo-visitante');
+      loginContainer.style.display = 'block';
+      loginUser.value = '';
+      loginPassword.value = '';
+      errorMsg.classList.remove('show');
+      usuarioVIPLogado = null;
+      document.getElementById('grupoVIP').classList.add('hidden');
+      atualizarEstadoChat();
+    });
+
+    // ============================================================
+    // ===== CARREGAMENTO DE DADOS =====
+    // ============================================================
+
+    async function carregarTodosDados() {
+      try {
+        [configVIP, usuariosVIP, anuncios, publicacoesVIP, mensagensChat, sucatas, produtos] = await Promise.all([
+          carregarConfigVIP(),
+          carregarUsuariosVIP(),
+          carregarAnuncios(),
+          carregarPublicacoesVIP(),
+          carregarMensagensChat(),
+          carregarSucatas(),
+          carregarProdutosLoja()
+        ]);
+
+        // Se não houver produtos, adicionar alguns de exemplo
+        if (produtos.length === 0) {
+          produtos = [
+            {
+              id: Date.now() + 1,
+              nome: 'PlayStation 5 Digital Edition',
+              preco: 'R$ 3.499,90',
+              desc: 'Console Sony PS5, 1 ano de uso, completo com 2 controles e 3 jogos digitais.',
+              imagem: null
+            },
+            {
+              id: Date.now() + 2,
+              nome: 'Xbox Series X',
+              preco: 'R$ 3.799,00',
+              desc: 'Xbox Series X 1TB, com Game Pass Ultimate 3 meses incluso.',
+              imagem: null
+            }
+          ];
+          for (const prod of produtos) {
+            await salvarDados(COLLECTIONS.PRODUTOS_LOJA, prod, prod.id.toString());
+          }
+        }
+
+        // Se não houver sucatas, adicionar algumas de exemplo
+        if (sucatas.length === 0) {
+          const sucatasExemplo = [
+            {
+              id: Date.now() + 1,
+              titulo: 'PlayStation 3 (fat)',
+              desc: 'Console PS3 fat em bom estado, acompanha 1 controle e cabos.',
+              preco: 'R$ 187',
+              categoria: 'Console',
+              quantidade: 1,
+              unidade: 'unidade',
+              localizacao: 'São Paulo, SP',
+              status: 'Disponível',
+              imagem: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23d0dae8\'/%3E%3Ctext x=\'18\' y=\'55\' font-family=\'Arial\' font-size=\'12\' fill=\'%232c3e5a\'%3EPS3%20fat%3C/text%3E%3C/svg%3E'
+            },
+            {
+              id: Date.now() + 2,
+              titulo: 'Xbox 360 (desbloq)',
+              desc: 'Xbox 360 desbloqueado, com 2 controles e fonte.',
+              preco: 'R$ 215',
+              categoria: 'Console',
+              quantidade: 1,
+              unidade: 'unidade',
+              localizacao: 'Rio de Janeiro, RJ',
+              status: 'Disponível',
+              imagem: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23b8cbe0\'/%3E%3Ctext x=\'10\' y=\'55\' font-family=\'Arial\' font-size=\'12\' fill=\'%231f3a57\'%3EXbox%20360%3C/text%3E%3C/svg%3E'
+            },
+            {
+              id: Date.now() + 3,
+              titulo: 'Nintendo Wii (com sensor)',
+              desc: 'Nintendo Wii completo com sensor, controles e jogos.',
+              preco: 'R$ 132',
+              categoria: 'Console',
+              quantidade: 1,
+              unidade: 'unidade',
+              localizacao: 'Belo Horizonte, MG',
+              status: 'Disponível',
+              imagem: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23aac0d9\'/%3E%3Ctext x=\'15\' y=\'55\' font-family=\'Arial\' font-size=\'12\' fill=\'%231a2f47\'%3ENintendo%20Wii%3C/text%3E%3C/svg%3E'
+            }
+          ];
+          for (const suc of sucatasExemplo) {
+            await salvarDados(COLLECTIONS.SUCATAS, suc, suc.id.toString());
+          }
+          sucatas = await carregarSucatas();
+        }
+
+        // Se não houver anúncios, adicionar alguns de exemplo
+        if (anuncios.length === 0) {
+          const agora = new Date();
+          const anunciosExemplo = [
+            {
+              id: Date.now() + 1,
+              titulo: 'PlayStation 5 com 2 controles',
+              nome: 'Carlos Silva',
+              email: 'carlos@email.com',
+              telefone: '(11) 99999-8888',
+              desc: 'PS5 Digital Edition, 1 ano de uso, completo com 2 controles DualSense.',
+              valor: 'R$ 3.200,00',
+              imagem: null,
+              data: new Date(agora.getTime() - 3600000 * 3).toISOString()
+            },
+            {
+              id: Date.now() + 2,
+              titulo: 'Xbox Series X + Game Pass',
+              nome: 'Mariana Oliveira',
+              email: 'mariana@email.com',
+              telefone: '(21) 98888-7777',
+              desc: 'Xbox Series X 1TB, acompanha 3 meses de Game Pass Ultimate.',
+              valor: 'R$ 3.800,00',
+              imagem: null,
+              data: new Date(agora.getTime() - 3600000 * 24 * 2).toISOString()
+            }
+          ];
+          for (const an of anunciosExemplo) {
+            await salvarDados(COLLECTIONS.ANUNCIOS, an, an.id.toString());
+          }
+          anuncios = await carregarAnuncios();
+        }
+
+        // Se não houver publicações VIP, adicionar algumas de exemplo
+        if (publicacoesVIP.length === 0) {
+          const agora = new Date();
+          const pubsExemplo = [
+            {
+              id: Date.now() + 1,
+              titulo: '🎮 Bem-vindos à Área VIP!',
+              conteudo: 'Esta é a área exclusiva para membros VIP da SmartOnline. Aqui você encontra conteúdo premium, dicas exclusivas e muito mais!',
+              autor: 'Administrador',
+              data: new Date(agora.getTime() - 3600000 * 2).toISOString(),
+              fixado: true,
+              respostas: [
+                {
+                  id: Date.now() + 100,
+                  autor: 'Dark_Player',
+                  texto: 'Excelente iniciativa! Parabéns pelo espaço.',
+                  data: new Date(agora.getTime() - 3600000 * 1.5).toISOString()
+                }
+              ]
+            },
+            {
+              id: Date.now() + 2,
+              titulo: '📢 Anúncio Importante',
+              conteudo: 'Em breve teremos um encontro exclusivo para membros VIP. Fiquem atentos!',
+              autor: 'Administrador',
+              data: new Date(agora.getTime() - 3600000 * 24).toISOString(),
+              fixado: false,
+              respostas: []
+            }
+          ];
+          for (const pub of pubsExemplo) {
+            await salvarDados(COLLECTIONS.PUBLICACOES_VIP, pub, pub.id.toString());
+          }
+          publicacoesVIP = await carregarPublicacoesVIP();
+        }
+
+        // Se não houver mensagens de chat, adicionar algumas de exemplo
+        if (mensagensChat.length === 0) {
+          const agora = new Date();
+          const msgsExemplo = [
+            {
+              id: Date.now() + 1,
+              autor: 'Administrador',
+              texto: '👋 Bem-vindos ao Chat da SmartOnline!',
+              data: new Date(agora.getTime() - 3600000).toISOString()
+            },
+            {
+              id: Date.now() + 2,
+              autor: 'Dark_Player',
+              texto: 'Olá pessoal! Alguém tem um PS5 para vender?',
+              data: new Date(agora.getTime() - 1800000).toISOString()
+            }
+          ];
+          for (const msg of msgsExemplo) {
+            await salvarDados(COLLECTIONS.CHAT_MENSAGENS, msg, msg.id.toString());
+          }
+          mensagensChat = await carregarMensagensChat();
+        }
+
+        renderizarTodos();
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        alert('Erro ao carregar dados do servidor. Tente novamente.');
+      }
+    }
+
+    function renderizarTodos() {
+      renderizarProdutos();
+      renderizarAnuncios();
+      renderizarMembrosVIP();
+      renderizarAcessoVIP();
+      renderizarMensagensChat();
+      renderizarSucatas();
+      atualizarEstadoChat();
+    }
+
+    // ============================================================
+    // ===== LOJA =====
+    // ============================================================
+
+    function renderizarProdutos() {
+      if (!lojaProdutos) return;
+      if (produtos.length === 0) {
+        lojaProdutos.innerHTML = `
+        <div class="empty-produtos">
+          <i class="fas fa-box-open"></i>
+          <p>Nenhum produto na loja.</p>
+          ${usuarioTipo === 'admin' ? '<p style="font-size:0.8rem;">Use o formulário abaixo para adicionar.</p>' : ''}
+        </div>
+      `;
+        return;
+      }
+
+      let html = '';
+      produtos.forEach(prod => {
+        const hasImage = prod.imagem && prod.imagem.trim() !== '';
+        const isAdmin = usuarioTipo === 'admin';
+        html += `
+        <div class="produto-item">
+          ${hasImage ? `<img src="${prod.imagem}" class="produto-img" alt="${prod.nome}">` :
+            `<div class="produto-img" style="display:flex;align-items:center;justify-content:center;color:#7f96b0;font-size:0.7rem;"><i class="fas fa-image" style="font-size:2rem;"></i></div>`}
+          <div class="produto-info">
+            <h4>${prod.nome}</h4>
+            <div class="produto-preco">${prod.preco}</div>
+            <div class="produto-desc">${prod.desc || 'Sem descrição'}</div>
+          </div>
+          ${isAdmin ? `
+          <div class="produto-actions">
+            <button class="btn-editar" data-id="${prod.id}"><i class="fas fa-edit"></i> Editar</button>
+            <button class="btn-remover" data-id="${prod.id}"><i class="fas fa-trash"></i> Remover</button>
+          </div>` : ''}
+        </div>
+      `;
+      });
+      lojaProdutos.innerHTML = html;
+
+      if (usuarioTipo === 'admin') {
+        document.querySelectorAll('.btn-editar').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            editarProduto(id);
+          });
+        });
+        document.querySelectorAll('.btn-remover').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja remover este produto?')) {
+              removerProduto(id);
+            }
+          });
+        });
+      }
+    }
+
+    async function adicionarProduto(nome, preco, desc, imagemBase64 = null) {
+      if (usuarioTipo === 'visitante') return false;
+      if (!nome || nome.trim() === '') {
+        alert('Digite o nome do produto!');
+        return false;
+      }
+      if (!preco || preco.trim() === '') {
+        alert('Digite o preço do produto!');
+        return false;
+      }
+      const novoProd = {
+        id: Date.now().toString(),
+        nome: nome.trim(),
+        preco: preco.trim(),
+        desc: desc ? desc.trim() : '',
+        imagem: imagemBase64 || null
+      };
+      try {
+        await salvarDados(COLLECTIONS.PRODUTOS_LOJA, novoProd, novoProd.id);
+        produtos = await carregarProdutosLoja();
+        renderizarProdutos();
+        limparFormulario();
+        return true;
+      } catch (error) {
+        alert('Erro ao adicionar produto: ' + error.message);
+        return false;
+      }
+    }
+
+    function editarProduto(id) {
+      if (usuarioTipo === 'visitante') return;
+      const prod = produtos.find(p => p.id === id);
+      if (!prod) return;
+      editandoId = id;
+      produtoNome.value = prod.nome;
+      produtoPreco.value = prod.preco;
+      produtoDesc.value = prod.desc || '';
+      previewNomeArquivo.textContent = prod.imagem ? 'imagem atual' : 'nenhuma imagem';
+      btnSalvar.innerHTML = '<i class="fas fa-save"></i> Atualizar';
+      btnCancelar.style.display = 'inline-block';
+      editandoLabel.style.display = 'inline-block';
+    }
+
+    async function atualizarProduto(id, nome, preco, desc, imagemBase64 = null) {
+      const prod = produtos.find(p => p.id === id);
+      if (!prod) return false;
+      const dados = {
+        nome: nome.trim(),
+        preco: preco.trim(),
+        desc: desc ? desc.trim() : ''
+      };
+      if (imagemBase64 !== null) {
+        dados.imagem = imagemBase64;
+      }
+      try {
+        await editarDados(COLLECTIONS.PRODUTOS_LOJA, id, dados);
+        produtos = await carregarProdutosLoja();
+        renderizarProdutos();
+        limparFormulario();
+        return true;
+      } catch (error) {
+        alert('Erro ao atualizar produto: ' + error.message);
+        return false;
+      }
+    }
+
+    async function removerProduto(id) {
+      if (usuarioTipo === 'visitante') return;
+      try {
+        await excluirDados(COLLECTIONS.PRODUTOS_LOJA, id);
+        produtos = await carregarProdutosLoja();
+        renderizarProdutos();
+        if (editandoId === id) limparFormulario();
+      } catch (error) {
+        alert('Erro ao remover produto: ' + error.message);
+      }
+    }
+
+    function limparFormulario() {
+      produtoNome.value = '';
+      produtoPreco.value = '';
+      produtoDesc.value = '';
+      produtoImagemInput.value = '';
+      previewNomeArquivo.textContent = 'nenhuma imagem';
+      btnSalvar.innerHTML = '<i class="fas fa-plus"></i> Publicar';
+      btnCancelar.style.display = 'none';
+      editandoLabel.style.display = 'none';
+      editandoId = null;
+    }
+
+    btnSalvar.addEventListener('click', function () {
+      if (usuarioTipo === 'visitante') return;
+      const nome = produtoNome.value;
+      const preco = produtoPreco.value;
+      const desc = produtoDesc.value;
+      const file = produtoImagemInput.files[0];
+
+      function finalizar(imagemBase64) {
+        if (editandoId !== null) {
+          atualizarProduto(editandoId, nome, preco, desc, imagemBase64);
+        } else {
+          adicionarProduto(nome, preco, desc, imagemBase64);
+        }
+      }
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) { finalizar(e.target.result); };
+        reader.onerror = function () { finalizar(null); };
+        reader.readAsDataURL(file);
+      } else {
+        finalizar(null);
+      }
+    });
+
+    btnCancelar.addEventListener('click', limparFormulario);
+
+    produtoImagemInput.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        previewNomeArquivo.textContent = this.files[0].name;
+      } else {
+        previewNomeArquivo.textContent = 'nenhuma imagem';
+      }
+    });
+
+    btnLoja.addEventListener('click', function (e) {
+      e.preventDefault();
+      renderizarProdutos();
+      lojaModal.classList.add('active');
+    });
+
+    fecharLoja.addEventListener('click', function () {
+      lojaModal.classList.remove('active');
+      limparFormulario();
+    });
+
+    lojaModal.addEventListener('click', function (e) {
+      if (e.target === lojaModal) {
+        lojaModal.classList.remove('active');
+        limparFormulario();
+      }
+    });
+
+    // ============================================================
+    // ===== MODAL PIX =====
+    // ============================================================
+
+    btnAssinar.addEventListener('click', function (e) {
+      e.preventDefault();
+      modalPix.classList.add('active');
+    });
+
+    fecharPix.addEventListener('click', function () {
+      modalPix.classList.remove('active');
+    });
+
+    modalPix.addEventListener('click', function (e) {
+      if (e.target === modalPix) modalPix.classList.remove('active');
+    });
+
+    copiarPix.addEventListener('click', function () {
+      const texto = chaveSpan.innerText;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(texto).then(() => {
+          const original = copiarPix.innerHTML;
+          copiarPix.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+          setTimeout(() => { copiarPix.innerHTML = original; }, 2000);
+        });
+      } else {
+        alert('Chave Pix: ' + texto);
+      }
+    });
+
+    // ============================================================
+    // ===== CLASSIFICADOS - ANÚNCIOS =====
+    // ============================================================
+
+    function renderizarAnuncios() {
+      const lista = document.getElementById('classificadosLista');
+      if (!lista) return;
+
+      let filtrados = anuncios.filter(anuncio => {
+        if (!filtroTituloAtual) return true;
+        return anuncio.titulo.toLowerCase().includes(filtroTituloAtual.toLowerCase());
+      });
+
+      const agora = new Date();
+      filtrados = filtrados.filter(anuncio => {
+        if (filtroPeriodoAtual === 'todos') return true;
+        const dataAnuncio = new Date(anuncio.data);
+        const diffDias = (agora - dataAnuncio) / (1000 * 60 * 60 * 24);
+        if (filtroPeriodoAtual === 'hoje') return diffDias < 1;
+        if (filtroPeriodoAtual === '7dias') return diffDias <= 7;
+        if (filtroPeriodoAtual === '30dias') return diffDias <= 30;
+        return true;
+      });
+
+      filtrados.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+      if (filtrados.length === 0) {
+        lista.innerHTML = `
+        <div class="sem-anuncios">
+          <i class="fas fa-box-open"></i>
+          <p>Nenhum anúncio encontrado.</p>
+          <p style="font-size:0.8rem;">Seja o primeiro a publicar!</p>
+        </div>
+      `;
+        return;
+      }
+
+      const isAdmin = usuarioTipo === 'admin';
+      let html = '';
+      filtrados.forEach(anuncio => {
+        const dataFormatada = new Date(anuncio.data).toLocaleString('pt-BR', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        const hasImage = anuncio.imagem && anuncio.imagem.trim() !== '';
+
+        html += `
+        <div class="anuncio-item" data-id="${anuncio.id}">
+          ${hasImage ? `<img src="${anuncio.imagem}" class="anuncio-img" alt="${anuncio.titulo}">` :
+            `<div class="anuncio-img" style="display:flex;align-items:center;justify-content:center;color:#7f96b0;font-size:2rem;background:#eef2f7;border-radius:16px;"><i class="fas fa-image"></i></div>`}
+          <div class="anuncio-info">
+            <div class="anuncio-titulo">${anuncio.titulo}</div>
+            <div class="anuncio-valor">${anuncio.valor}</div>
+            <div class="anuncio-desc">${anuncio.desc}</div>
+            <div class="anuncio-contato">
+              <span><i class="fas fa-user"></i> ${anuncio.nome}</span>
+              <span><i class="fas fa-phone"></i> ${anuncio.telefone}</span>
+              <span><i class="fas fa-envelope"></i> ${anuncio.email}</span>
+            </div>
+            <div class="anuncio-data"><i class="far fa-clock"></i> ${dataFormatada}</div>
+          </div>
+          ${isAdmin ? `
+          <div class="anuncio-actions">
+            <button class="btn-editar-anuncio" data-id="${anuncio.id}"><i class="fas fa-edit"></i> Editar</button>
+            <button class="btn-excluir-anuncio" data-id="${anuncio.id}"><i class="fas fa-trash"></i> Excluir</button>
+          </div>` : ''}
+        </div>
+      `;
+      });
+
+      lista.innerHTML = html;
+
+      if (isAdmin) {
+        document.querySelectorAll('.btn-editar-anuncio').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            editarAnuncio(id);
+          });
+        });
+        document.querySelectorAll('.btn-excluir-anuncio').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja excluir este anúncio?')) {
+              excluirAnuncio(id);
+            }
+          });
+        });
+      }
+    }
+
+    function abrirClassificados() {
+      const modal = document.getElementById('classificadosModal');
+      if (modal) {
+        renderizarAnuncios();
+        renderizarMensagensChat();
+        atualizarEstadoChat();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function fecharClassificados() {
+      const modal = document.getElementById('classificadosModal');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        fecharFormAnuncio();
+      }
+    }
+
+    function novoAnuncio() {
+      const modal = document.getElementById('anuncioFormModal');
+      document.getElementById('formTitulo').textContent = 'Novo Anúncio';
+      document.getElementById('btnPublicarTexto').textContent = 'Publicar anúncio';
+      document.getElementById('anuncioEditId').value = '';
+      document.getElementById('anuncioForm').reset();
+      document.getElementById('previewNomeImagem').textContent = 'Nenhuma imagem selecionada';
+      if (modal) modal.classList.add('active');
+    }
+
+    function fecharFormAnuncio() {
+      const modal = document.getElementById('anuncioFormModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    async function salvarAnuncio(e) {
+      e.preventDefault();
+      const id = document.getElementById('anuncioEditId').value;
+      const titulo = document.getElementById('anuncioTitulo').value.trim();
+      const nome = document.getElementById('anuncioNome').value.trim();
+      const email = document.getElementById('anuncioEmail').value.trim();
+      const telefone = document.getElementById('anuncioTelefone').value.trim();
+      const desc = document.getElementById('anuncioDesc').value.trim();
+      const valor = document.getElementById('anuncioValor').value.trim();
+      const fileInput = document.getElementById('anuncioImagem');
+
+      if (!titulo) { alert('Digite o título do anúncio!'); return; }
+      if (!nome) { alert('Digite seu nome!'); return; }
+      if (!email) { alert('Digite seu email!'); return; }
+      if (!telefone) { alert('Digite seu telefone!'); return; }
+      if (!desc) { alert('Digite a descrição do produto!'); return; }
+      if (!valor) { alert('Digite o valor do produto!'); return; }
+
+      const file = fileInput.files[0];
+
+      function finalizarSalvar(imagemBase64) {
+        if (id) {
+          const dados = { titulo, nome, email, telefone, desc, valor };
+          if (imagemBase64 !== null) dados.imagem = imagemBase64;
+          editarDados(COLLECTIONS.ANUNCIOS, id, dados).then(async () => {
+            anuncios = await carregarAnuncios();
+            renderizarAnuncios();
+            fecharFormAnuncio();
+          }).catch(err => alert('Erro ao salvar: ' + err.message));
+        } else {
+          const novo = {
+            titulo, nome, email, telefone, desc, valor,
+            imagem: imagemBase64 || null,
+            data: new Date().toISOString()
+          };
+          salvarDados(COLLECTIONS.ANUNCIOS, novo).then(async () => {
+            anuncios = await carregarAnuncios();
+            renderizarAnuncios();
+            fecharFormAnuncio();
+          }).catch(err => alert('Erro ao salvar: ' + err.message));
+        }
+      }
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) { finalizarSalvar(e.target.result); };
+        reader.onerror = function () { finalizarSalvar(null); };
+        reader.readAsDataURL(file);
+      } else {
+        finalizarSalvar(null);
+      }
+    }
+
+    function editarAnuncio(id) {
+      if (usuarioTipo !== 'admin') return;
+      const anuncio = anuncios.find(a => a.id === id);
+      if (!anuncio) return;
+
+      document.getElementById('anuncioEditId').value = id;
+      document.getElementById('anuncioTitulo').value = anuncio.titulo;
+      document.getElementById('anuncioNome').value = anuncio.nome;
+      document.getElementById('anuncioEmail').value = anuncio.email;
+      document.getElementById('anuncioTelefone').value = anuncio.telefone;
+      document.getElementById('anuncioDesc').value = anuncio.desc;
+      document.getElementById('anuncioValor').value = anuncio.valor;
+      document.getElementById('previewNomeImagem').textContent = anuncio.imagem ? 'Imagem atual' : 'Nenhuma imagem';
+      document.getElementById('formTitulo').textContent = 'Editar Anúncio';
+      document.getElementById('btnPublicarTexto').textContent = 'Salvar alterações';
+      document.getElementById('anuncioFormModal').classList.add('active');
+    }
+
+    async function excluirAnuncio(id) {
+      if (usuarioTipo !== 'admin') return;
+      try {
+        await excluirDados(COLLECTIONS.ANUNCIOS, id);
+        anuncios = await carregarAnuncios();
+        renderizarAnuncios();
+      } catch (error) {
+        alert('Erro ao excluir anúncio: ' + error.message);
+      }
+    }
+
+    function filtrarTitulo() {
+      const input = document.getElementById('filtroTitulo');
+      filtroTituloAtual = input ? input.value : '';
+      renderizarAnuncios();
+    }
+
+    function filtrarPeriodo() {
+      const select = document.getElementById('filtroPeriodo');
+      filtroPeriodoAtual = select ? select.value : 'todos';
+      renderizarAnuncios();
+    }
+
+    document.getElementById('btnClassificados').addEventListener('click', function (e) {
+      e.preventDefault();
+      abrirClassificados();
+    });
+
+    document.getElementById('fecharClassificados').addEventListener('click', function () {
+      fecharClassificados();
+    });
+
+    document.getElementById('classificadosModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharClassificados();
+    });
+
+    document.getElementById('btnNovoAnuncio').addEventListener('click', function () {
+      novoAnuncio();
+    });
+
+    document.getElementById('fecharFormAnuncio').addEventListener('click', function () {
+      fecharFormAnuncio();
+    });
+
+    document.getElementById('anuncioFormModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharFormAnuncio();
+    });
+
+    document.getElementById('anuncioForm').addEventListener('submit', function (e) {
+      salvarAnuncio(e);
+    });
+
+    document.getElementById('anuncioImagem').addEventListener('change', function () {
+      const preview = document.getElementById('previewNomeImagem');
+      preview.textContent = this.files && this.files[0] ? this.files[0].name : 'Nenhuma imagem selecionada';
+    });
+
+    // ============================================================
+    // ===== CLASSIFICADOS - TABS =====
+    // ============================================================
+
+    document.querySelectorAll('.classificados-tabs button').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.classificados-tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        const tabId = this.dataset.tab;
+        document.getElementById('tab-' + tabId).classList.add('active');
+        if (tabId === 'chat') {
+          setTimeout(() => { rolarChatParaFim(); }, 100);
+        }
+      });
+    });
+
+    // ============================================================
+    // ===== CHAT =====
+    // ============================================================
+
+    function renderizarMensagensChat() {
+      const container = document.getElementById('chatMensagens');
+      if (!container) return;
+      if (mensagensChat.length === 0) {
+        container.innerHTML = `
+        <div class="chat-sem-mensagens">
+          <i class="fas fa-comment-dots"></i>
+          Nenhuma mensagem ainda. Seja o primeiro a conversar!
+        </div>
+      `;
+        return;
+      }
+      const usuarioAtual = obterNomeUsuario();
+      let html = '';
+      mensagensChat.forEach(msg => {
+        const isMinha = msg.autor === usuarioAtual;
+        const dataFormatada = new Date(msg.data).toLocaleString('pt-BR', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        html += `
+        <div class="chat-mensagem ${isMinha ? 'minha' : ''}">
+          <div class="msg-header">
+            <span class="msg-autor"><i class="fas fa-user-circle"></i> ${msg.autor}</span>
+            <span class="msg-data">${dataFormatada}</span>
+          </div>
+          <div class="msg-texto">${msg.texto}</div>
+        </div>
+      `;
+      });
+      container.innerHTML = html;
+      rolarChatParaFim();
+    }
+
+    function rolarChatParaFim() {
+      const container = document.getElementById('chatMensagens');
+      if (container) { container.scrollTop = container.scrollHeight; }
+    }
+
+    function obterNomeUsuario() {
+      if (usuarioVIPLogado && usuarioVIPLogado.nome) { return usuarioVIPLogado.nome; }
+      if (usuarioTipo === 'admin') { return 'Administrador'; }
+      return 'Visitante';
+    }
+
+    async function enviarMensagem() {
+      const input = document.getElementById('chatInput');
+      const texto = input.value.trim();
+      if (!texto) { alert('Digite uma mensagem!'); return; }
+      if (usuarioTipo === 'visitante' && !usuarioVIPLogado) {
+        alert('Você precisa estar logado para enviar mensagens!');
+        return;
+      }
+      const novaMensagem = {
+        id: Date.now().toString(),
+        autor: obterNomeUsuario(),
+        texto: texto,
+        data: new Date().toISOString()
+      };
+      try {
+        await salvarDados(COLLECTIONS.CHAT_MENSAGENS, novaMensagem, novaMensagem.id);
+        mensagensChat = await carregarMensagensChat();
+        renderizarMensagensChat();
+        input.value = '';
+        input.focus();
+      } catch (error) {
+        alert('Erro ao enviar mensagem: ' + error.message);
+      }
+    }
+
+    function atualizarEstadoChat() {
+      const input = document.getElementById('chatInput');
+      const btn = document.getElementById('btnEnviarChat');
+      if (!input || !btn) return;
+      const estaLogado = usuarioTipo !== 'visitante' || usuarioVIPLogado;
+      if (estaLogado) {
+        input.disabled = false;
+        btn.disabled = false;
+        input.placeholder = 'Digite sua mensagem...';
+      } else {
+        input.disabled = true;
+        btn.disabled = true;
+        input.placeholder = 'Faça login para participar do chat';
+      }
+    }
+
+    // ============================================================
+    // ===== SUCATAS - GERENCIAMENTO (APENAS ADMIN) =====
+    // ============================================================
+
+    function renderizarSucatas() {
+      const grid = document.getElementById('sucataGrid');
+      if (!grid) return;
+
+      const btnAdicionar = document.getElementById('btnAdicionarSucata');
+      if (btnAdicionar) {
+        btnAdicionar.style.display = usuarioTipo === 'admin' ? 'inline-flex' : 'none';
+      }
+
+      if (sucatas.length === 0) {
+        grid.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:2rem; color:#5a6f88;">
+          <i class="fas fa-box-open" style="font-size:2.5rem; color:#d0dae8;"></i>
+          <p>Nenhuma sucata cadastrada.</p>
+          ${usuarioTipo === 'admin' ? '<p style="font-size:0.8rem;">Clique em "Adicionar" para criar uma nova oferta.</p>' : ''}
+        </div>
+      `;
+        return;
+      }
+
+      const isAdmin = usuarioTipo === 'admin';
+      let html = '';
+      sucatas.forEach(sucata => {
+        const statusClass = 'status-' + sucata.status.toLowerCase();
+        const hasImage = sucata.imagem && sucata.imagem.trim() !== '';
+
+        html += `
+        <div class="card-sucata" data-id="${sucata.id}">
+          ${isAdmin ? `
+            <div class="sucata-acoes">
+              <button class="btn-editar-sucata" onclick="editarSucata('${sucata.id}')"><i class="fas fa-edit"></i></button>
+              <button class="btn-excluir-sucata" onclick="excluirSucata('${sucata.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+          ` : ''}
+          ${hasImage ? `<img src="${sucata.imagem}" alt="${sucata.titulo}">` :
+            `<div style="width:100%;height:130px;background:#eef2f7;border-radius:18px;display:flex;align-items:center;justify-content:center;color:#7f96b0;font-size:0.8rem;">Sem imagem</div>`}
+          <h4>${sucata.titulo}</h4>
+          <div class="preco">${sucata.preco}</div>
+          <span class="sucata-tag"><i class="fas fa-recycle"></i> ${sucata.categoria || 'sucata'}</span>
+          <div style="margin-top:0.2rem;">
+            <span class="sucata-status ${statusClass}">${sucata.status}</span>
+          </div>
+          ${sucata.localizacao ? `<div style="font-size:0.7rem; color:#5a6f88; margin-top:0.2rem;"><i class="fas fa-map-marker-alt"></i> ${sucata.localizacao}</div>` : ''}
+          ${sucata.quantidade ? `<div style="font-size:0.7rem; color:#5a6f88;">Qtd: ${sucata.quantidade} ${sucata.unidade || ''}</div>` : ''}
+          <div><button class="btn-comprar" onclick="alert('Entre em contato para mais informações!')"><i class="fas fa-cart-plus"></i> ofertar</button></div>
+        </div>
+      `;
+      });
+
+      grid.innerHTML = html;
+    }
+
+    function abrirFormSucata(dados = null) {
+      const modal = document.getElementById('sucataFormModal');
+      const titulo = document.getElementById('sucataFormTitulo');
+      const btnTexto = document.getElementById('sucataBtnTexto');
+      const editId = document.getElementById('sucataEditId');
+      const previewImg = document.getElementById('previewImagemSucata');
+      const previewNome = document.getElementById('previewNomeImagemSucata');
+
+      previewImg.classList.remove('visible');
+      previewImg.src = '';
+      previewNome.textContent = 'Nenhuma imagem selecionada';
+
+      if (dados) {
+        titulo.textContent = 'Editar Sucata';
+        btnTexto.textContent = 'Atualizar';
+        editId.value = dados.id;
+        document.getElementById('sucataTitulo').value = dados.titulo || '';
+        document.getElementById('sucataDesc').value = dados.desc || '';
+        document.getElementById('sucataPreco').value = dados.preco || '';
+        document.getElementById('sucataCategoria').value = dados.categoria || '';
+        document.getElementById('sucataQuantidade').value = dados.quantidade || 1;
+        document.getElementById('sucataUnidade').value = dados.unidade || '';
+        document.getElementById('sucataLocalizacao').value = dados.localizacao || '';
+        document.getElementById('sucataStatus').value = dados.status || 'Disponível';
+
+        if (dados.imagem && dados.imagem.trim() !== '') {
+          previewImg.src = dados.imagem;
+          previewImg.classList.add('visible');
+          previewNome.textContent = 'Imagem atual';
+        }
+      } else {
+        titulo.textContent = 'Nova Sucata';
+        btnTexto.textContent = 'Salvar';
+        editId.value = '';
+        document.getElementById('sucataForm').reset();
+        document.getElementById('sucataStatus').value = 'Disponível';
+        document.getElementById('sucataQuantidade').value = 1;
+      }
+
+      document.getElementById('sucataImagemInput').value = '';
+      if (modal) modal.classList.add('active');
+    }
+
+    function fecharFormSucata() {
+      document.getElementById('sucataFormModal').classList.remove('active');
+    }
+
+    document.getElementById('sucataImagemInput').addEventListener('change', function () {
+      const previewImg = document.getElementById('previewImagemSucata');
+      const previewNome = document.getElementById('previewNomeImagemSucata');
+      const file = this.files[0];
+
+      if (file) {
+        const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!tiposPermitidos.includes(file.type)) {
+          alert('Formato de imagem não permitido. Use JPG, JPEG, PNG ou WEBP.');
+          this.value = '';
+          previewImg.classList.remove('visible');
+          previewImg.src = '';
+          previewNome.textContent = 'Nenhuma imagem selecionada';
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          alert('A imagem é muito grande. Máximo de 5MB.');
+          this.value = '';
+          previewImg.classList.remove('visible');
+          previewImg.src = '';
+          previewNome.textContent = 'Nenhuma imagem selecionada';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImg.src = e.target.result;
+          previewImg.classList.add('visible');
+          previewNome.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewImg.classList.remove('visible');
+        previewImg.src = '';
+        previewNome.textContent = 'Nenhuma imagem selecionada';
+      }
+    });
+
+    async function salvarSucata(e) {
+      e.preventDefault();
+      if (usuarioTipo !== 'admin') {
+        alert('Apenas administradores podem adicionar ou editar sucatas.');
+        return;
+      }
+
+      const id = document.getElementById('sucataEditId').value;
+      const titulo = document.getElementById('sucataTitulo').value.trim();
+      const desc = document.getElementById('sucataDesc').value.trim();
+      const preco = document.getElementById('sucataPreco').value.trim();
+      const categoria = document.getElementById('sucataCategoria').value.trim();
+      const quantidade = parseInt(document.getElementById('sucataQuantidade').value) || 1;
+      const unidade = document.getElementById('sucataUnidade').value.trim();
+      const localizacao = document.getElementById('sucataLocalizacao').value.trim();
+      const status = document.getElementById('sucataStatus').value;
+      const fileInput = document.getElementById('sucataImagemInput');
+
+      if (!titulo) { alert('Digite o título!'); return; }
+      if (!preco) { alert('Digite o preço!'); return; }
+
+      function finalizarSalvar(imagemBase64) {
+        const dados = { titulo, desc, preco, categoria, quantidade, unidade, localizacao, status };
+        if (imagemBase64 !== null) dados.imagem = imagemBase64;
+
+        if (id) {
+          editarDados(COLLECTIONS.SUCATAS, id, dados).then(async () => {
+            sucatas = await carregarSucatas();
+            renderizarSucatas();
+            fecharFormSucata();
+          }).catch(err => alert('Erro ao salvar: ' + err.message));
+        } else {
+          dados.id = Date.now().toString();
+          salvarDados(COLLECTIONS.SUCATAS, dados, dados.id).then(async () => {
+            sucatas = await carregarSucatas();
+            renderizarSucatas();
+            fecharFormSucata();
+          }).catch(err => alert('Erro ao salvar: ' + err.message));
+        }
+      }
+
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (ev) { finalizarSalvar(ev.target.result); };
+        reader.onerror = function () { finalizarSalvar(null); };
+        reader.readAsDataURL(file);
+      } else {
+        finalizarSalvar(null);
+      }
+    }
+
+    window.editarSucata = function (id) {
+      if (usuarioTipo !== 'admin') {
+        alert('Apenas administradores podem editar sucatas.');
+        return;
+      }
+      const dados = sucatas.find(s => s.id === id);
+      if (dados) abrirFormSucata(dados);
+    };
+
+    window.excluirSucata = async function (id) {
+      if (usuarioTipo !== 'admin') {
+        alert('Apenas administradores podem excluir sucatas.');
+        return;
+      }
+      if (confirm('Tem certeza que deseja excluir esta sucata?')) {
+        try {
+          await excluirDados(COLLECTIONS.SUCATAS, id);
+          sucatas = await carregarSucatas();
+          renderizarSucatas();
+        } catch (error) {
+          alert('Erro ao excluir sucata: ' + error.message);
+        }
+      }
+    };
+
+    document.getElementById('btnAdicionarSucata').addEventListener('click', function () {
+      if (usuarioTipo === 'admin') abrirFormSucata();
+      else alert('Apenas administradores podem adicionar sucatas.');
+    });
+
+    document.getElementById('fecharSucataForm').addEventListener('click', fecharFormSucata);
+    document.getElementById('sucataFormModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharFormSucata();
+    });
+    document.getElementById('sucataForm').addEventListener('submit', salvarSucata);
+
+    // ============================================================
+    // ===== ÁREA VIP =====
+    // ============================================================
+
+    function abrirEmailVIP() {
+      document.getElementById('vipEmailModal').classList.add('active');
+      document.getElementById('vipEmailForm').reset();
+      document.getElementById('vipEmailErro').classList.remove('show');
+    }
+
+    function fecharEmailVIP() {
+      document.getElementById('vipEmailModal').classList.remove('active');
+    }
+
+    document.getElementById('fecharVipEmail').addEventListener('click', fecharEmailVIP);
+    document.getElementById('vipEmailModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharEmailVIP();
+    });
+
+    document.getElementById('vipEmailForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('vipEmailVerificar').value.trim();
+      const erroMsg = document.getElementById('vipEmailErroMsg');
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        erroMsg.textContent = 'Digite um e-mail válido!';
+        document.getElementById('vipEmailErro').classList.add('show');
+        return;
+      }
+
+      try {
+        const usuarios = await carregarUsuariosVIP();
+        const usuarioExistente = usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
+        if (usuarioExistente) {
+          fecharEmailVIP();
+          abrirLoginVIP(email);
+        } else {
+          fecharEmailVIP();
+          abrirCadastroVIP(email);
+        }
+      } catch (error) {
+        alert('Erro ao verificar e-mail: ' + error.message);
+      }
+    });
+
+    function abrirCadastroVIP(email = '') {
+      const modal = document.getElementById('vipCadastroModal');
+      document.getElementById('vipCadastroForm').reset();
+      document.getElementById('vipEmailCadastro').value = email;
+      if (modal) modal.classList.add('active');
+    }
+
+    function fecharCadastroVIP() {
+      document.getElementById('vipCadastroModal').classList.remove('active');
+    }
+
+    document.getElementById('fecharVipCadastro').addEventListener('click', fecharCadastroVIP);
+    document.getElementById('vipCadastroModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharCadastroVIP();
+    });
+
+    document.getElementById('vipCadastroForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const nome = document.getElementById('vipNome').value.trim();
+      const email = document.getElementById('vipEmailCadastro').value.trim();
+      const senha = document.getElementById('vipSenha').value.trim();
+      const dataNasc = document.getElementById('vipDataNasc').value;
+      const telefone = document.getElementById('vipTelefone').value.trim();
+      const cpf = document.getElementById('vipCpf').value.trim();
+      const cidade = document.getElementById('vipCidade').value.trim();
+      const estado = document.getElementById('vipEstado').value.trim();
+      const observacoes = document.getElementById('vipObservacoes').value.trim();
+
+      if (!nome) { alert('Digite seu nome completo!'); return; }
+      if (!email) { alert('Digite seu e-mail!'); return; }
+      if (!email.includes('@') || !email.includes('.')) { alert('Digite um e-mail válido!'); return; }
+      if (!senha || senha.length < 4) { alert('Digite uma senha com pelo menos 4 caracteres!'); return; }
+      if (!dataNasc) { alert('Digite sua data de nascimento!'); return; }
+
+      try {
+        const usuarios = await carregarUsuariosVIP();
+        if (usuarios.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+          alert('Este e-mail já está cadastrado!');
+          return;
+        }
+
+        const agora = new Date();
+        const novoUsuario = {
+          id: Date.now().toString(),
+          nome: nome,
+          email: email,
+          senha: senha,
+          dataNasc: dataNasc,
+          telefone: telefone || '',
+          cpf: cpf || '',
+          cidade: cidade || '',
+          estado: estado || '',
+          observacoes: observacoes || '',
+          dataCadastro: agora.toLocaleDateString('pt-BR'),
+          horaCadastro: agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          status: 'Pendente',
+          pagamento: 'Aguardando'
+        };
+
+        await salvarDados(COLLECTIONS.USUARIOS_VIP, novoUsuario, novoUsuario.id);
+        usuariosVIP = await carregarUsuariosVIP();
+        renderizarMembrosVIP();
+        renderizarAcessoVIP();
+        fecharCadastroVIP();
+        abrirPagamentoVIP();
+      } catch (error) {
+        alert('Erro ao cadastrar: ' + error.message);
+      }
+    });
+
+    function abrirPagamentoVIP() {
+      document.getElementById('vipValorExibido').textContent = configVIP.valor || 'R$ 9,90';
+      document.getElementById('vipWhatsAppExibido').textContent = configVIP.whatsapp || '(14) 99999-9999';
+      document.getElementById('vipPagamentoModal').classList.add('active');
+    }
+
+    function fecharPagamentoVIP() {
+      document.getElementById('vipPagamentoModal').classList.remove('active');
+    }
+
+    document.getElementById('fecharVipPagamento').addEventListener('click', fecharPagamentoVIP);
+    document.getElementById('btnFecharPagamento').addEventListener('click', fecharPagamentoVIP);
+    document.getElementById('vipPagamentoModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharPagamentoVIP();
+    });
+
+    function abrirLoginVIP(email) {
+      const modal = document.getElementById('vipLoginModal');
+      document.getElementById('vipLoginEmail').value = email;
+      document.getElementById('vipLoginSenha').value = '';
+      document.getElementById('vipLoginErro').classList.remove('show');
+      if (modal) modal.classList.add('active');
+    }
+
+    function fecharLoginVIP() {
+      document.getElementById('vipLoginModal').classList.remove('active');
+    }
+
+    document.getElementById('fecharVipLogin').addEventListener('click', fecharLoginVIP);
+    document.getElementById('vipLoginModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharLoginVIP();
+    });
+
+    document.getElementById('vipLoginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('vipLoginEmail').value.trim();
+      const senha = document.getElementById('vipLoginSenha').value.trim();
+      const erroMsg = document.getElementById('vipLoginErroMsg');
+
+      try {
+        const usuarios = await carregarUsuariosVIP();
+        const usuario = usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+        if (!usuario) {
+          erroMsg.textContent = 'Usuário não encontrado!';
+          document.getElementById('vipLoginErro').classList.add('show');
+          return;
+        }
+
+        if (usuario.senha !== senha) {
+          erroMsg.textContent = 'Senha incorreta!';
+          document.getElementById('vipLoginErro').classList.add('show');
+          return;
+        }
+
+        if (usuario.status === 'Pendente') {
+          erroMsg.textContent = 'Seu acesso VIP ainda não foi liberado. Caso já tenha efetuado o pagamento, envie o comprovante para o WhatsApp informado.';
+          document.getElementById('vipLoginErro').classList.add('show');
+          return;
+        }
+
+        if (usuario.status === 'Bloqueado') {
+          erroMsg.textContent = 'Seu acesso VIP foi bloqueado pelo administrador.';
+          document.getElementById('vipLoginErro').classList.add('show');
+          return;
+        }
+
+        if (usuario.status === 'Cancelado') {
+          erroMsg.textContent = 'Seu cadastro VIP foi cancelado. Entre em contato com o administrador.';
+          document.getElementById('vipLoginErro').classList.add('show');
+          return;
+        }
+
+        usuarioVIPLogado = usuario;
+        fecharLoginVIP();
+        abrirPaginaVIP();
+      } catch (error) {
+        alert('Erro ao fazer login: ' + error.message);
+      }
+    });
+
+    function abrirPaginaVIP() {
+      const modal = document.getElementById('vipPaginaModal');
+      if (modal) {
+        renderizarPublicacoesVIP();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function fecharPaginaVIP() {
+      const modal = document.getElementById('vipPaginaModal');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        fecharFormPublicacao();
+      }
+    }
+
+    function renderizarPublicacoesVIP() {
+      const container = document.getElementById('vipPaginaLista');
+      if (!container) return;
+      const podeCriar = usuarioTipo === 'admin';
+      const btnNovaPub = document.getElementById('btnNovaPublicacao');
+      if (btnNovaPub) {
+        btnNovaPub.classList.toggle('hidden', !podeCriar);
+      }
+      let filtradas = publicacoesVIP.filter(pub => {
+        if (!filtroPublicacaoAtual) return true;
+        return pub.titulo.toLowerCase().includes(filtroPublicacaoAtual.toLowerCase()) ||
+          pub.conteudo.toLowerCase().includes(filtroPublicacaoAtual.toLowerCase());
+      });
+      filtradas.sort((a, b) => {
+        if (a.fixado && !b.fixado) return -1;
+        if (!a.fixado && b.fixado) return 1;
+        return new Date(b.data) - new Date(a.data);
+      });
+      if (filtradas.length === 0) {
+        container.innerHTML = `
+        <div class="sem-publicacoes">
+          <i class="fas fa-comments"></i>
+          <p>Nenhuma publicação encontrada.</p>
+          ${podeCriar ? '<p style="font-size:0.8rem;">Clique em "Nova Publicação" para criar a primeira.</p>' : ''}
+        </div>
+      `;
+        return;
+      }
+      let html = '';
+      filtradas.forEach(pub => {
+        const dataFormatada = new Date(pub.data).toLocaleString('pt-BR', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        const isAdmin = usuarioTipo === 'admin';
+        const respostas = pub.respostas || [];
+        html += `
+        <div class="vip-publicacao-item" data-id="${pub.id}">
+          <div class="pub-header">
+            <div class="pub-titulo">${pub.fixado ? '📌 ' : ''}${pub.titulo}</div>
+            <div class="pub-autor"><i class="fas fa-user"></i> ${pub.autor}</div>
+            <div class="pub-data"><i class="far fa-clock"></i> ${dataFormatada}</div>
+          </div>
+          <div class="pub-conteudo">${pub.conteudo}</div>
+          <div class="pub-acoes">
+            <button class="btn-responder" onclick="toggleRespostas('${pub.id}')"><i class="fas fa-reply"></i> Responder (${respostas.length})</button>
+            ${isAdmin ? `
+              <button class="btn-editar-pub" onclick="editarPublicacao('${pub.id}')"><i class="fas fa-edit"></i> Editar</button>
+              <button class="btn-excluir-pub" onclick="excluirPublicacao('${pub.id}')"><i class="fas fa-trash"></i> Excluir</button>
+              <button class="btn-fixar-pub" onclick="fixarPublicacao('${pub.id}')"><i class="fas fa-thumbtack"></i> ${pub.fixado ? 'Desfixar' : 'Fixar'}</button>
+            ` : ''}
+          </div>
+          <div class="pub-respostas" id="respostas-${pub.id}" style="display:none;">
+            ${respostas.map(resp => `
+              <div class="resposta-item">
+                <div class="resp-autor"><i class="fas fa-user-circle"></i> ${resp.autor}</div>
+                <div class="resp-texto">${resp.texto}</div>
+                <div class="resp-data"><i class="far fa-clock"></i> ${new Date(resp.data).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                ${isAdmin ? `
+                  <div class="resp-acoes">
+                    <button class="btn-excluir-resp" onclick="excluirResposta('${pub.id}', '${resp.id}')"><i class="fas fa-trash"></i> Excluir</button>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+            <div class="form-resposta">
+              <textarea id="resp-texto-${pub.id}" placeholder="Escreva sua resposta..."></textarea>
+              <button onclick="salvarResposta('${pub.id}')"><i class="fas fa-paper-plane"></i> Responder</button>
+            </div>
+          </div>
+        </div>
+      `;
+      });
+      container.innerHTML = html;
+    }
+
+    window.toggleRespostas = function (id) {
+      const div = document.getElementById(`respostas-${id}`);
+      if (div) div.style.display = div.style.display === 'none' ? 'block' : 'none';
+    };
+
+    window.salvarResposta = async function (id) {
+      const textarea = document.getElementById(`resp-texto-${id}`);
+      const texto = textarea ? textarea.value.trim() : '';
+      if (!texto) { alert('Digite sua resposta!'); return; }
+      const pub = publicacoesVIP.find(p => p.id === id);
+      if (!pub) return;
+      if (!pub.respostas) pub.respostas = [];
+      const novaResp = {
+        id: Date.now() + Math.random() * 1000,
+        autor: usuarioVIPLogado ? usuarioVIPLogado.nome : (usuarioTipo === 'admin' ? 'Administrador' : 'Usuário'),
+        texto: texto,
+        data: new Date().toISOString()
+      };
+      pub.respostas.push(novaResp);
+      try {
+        await editarDados(COLLECTIONS.PUBLICACOES_VIP, id, pub);
+        publicacoesVIP = await carregarPublicacoesVIP();
+        renderizarPublicacoesVIP();
+      } catch (error) {
+        alert('Erro ao salvar resposta: ' + error.message);
+      }
+    };
+
+    window.excluirResposta = async function (pubId, respId) {
+      if (usuarioTipo !== 'admin') return;
+      if (!confirm('Tem certeza que deseja excluir esta resposta?')) return;
+      const pub = publicacoesVIP.find(p => p.id === pubId);
+      if (!pub) return;
+      pub.respostas = pub.respostas.filter(r => r.id !== respId);
+      try {
+        await editarDados(COLLECTIONS.PUBLICACOES_VIP, pubId, pub);
+        publicacoesVIP = await carregarPublicacoesVIP();
+        renderizarPublicacoesVIP();
+      } catch (error) {
+        alert('Erro ao excluir resposta: ' + error.message);
+      }
+    };
+
+    window.editarPublicacao = function (id) {
+      if (usuarioTipo !== 'admin') return;
+      const pub = publicacoesVIP.find(p => p.id === id);
+      if (!pub) return;
+      document.getElementById('pubEditId').value = id;
+      document.getElementById('pubTitulo').value = pub.titulo;
+      document.getElementById('pubConteudo').value = pub.conteudo;
+      document.getElementById('formPubTitulo').textContent = 'Editar Publicação';
+      document.getElementById('btnPubTexto').textContent = 'Salvar alterações';
+      document.getElementById('vipPublicacaoFormModal').classList.add('active');
+    };
+
+    window.excluirPublicacao = async function (id) {
+      if (usuarioTipo !== 'admin') return;
+      if (!confirm('Tem certeza que deseja excluir esta publicação?')) return;
+      try {
+        await excluirDados(COLLECTIONS.PUBLICACOES_VIP, id);
+        publicacoesVIP = await carregarPublicacoesVIP();
+        renderizarPublicacoesVIP();
+      } catch (error) {
+        alert('Erro ao excluir publicação: ' + error.message);
+      }
+    };
+
+    window.fixarPublicacao = async function (id) {
+      if (usuarioTipo !== 'admin') return;
+      const pub = publicacoesVIP.find(p => p.id === id);
+      if (!pub) return;
+      pub.fixado = !pub.fixado;
+      try {
+        await editarDados(COLLECTIONS.PUBLICACOES_VIP, id, pub);
+        publicacoesVIP = await carregarPublicacoesVIP();
+        renderizarPublicacoesVIP();
+      } catch (error) {
+        alert('Erro ao fixar publicação: ' + error.message);
+      }
+    };
+
+    function filtrarPublicacoes() {
+      const input = document.getElementById('filtroPublicacao');
+      filtroPublicacaoAtual = input ? input.value : '';
+      renderizarPublicacoesVIP();
+    }
+
+    function novaPublicacao() {
+      const modal = document.getElementById('vipPublicacaoFormModal');
+      document.getElementById('pubEditId').value = '';
+      document.getElementById('pubTitulo').value = '';
+      document.getElementById('pubConteudo').value = '';
+      document.getElementById('formPubTitulo').textContent = 'Nova Publicação';
+      document.getElementById('btnPubTexto').textContent = 'Publicar';
+      if (modal) modal.classList.add('active');
+    }
+
+    function fecharFormPublicacao() {
+      const modal = document.getElementById('vipPublicacaoFormModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    document.getElementById('btnNovaPublicacao').addEventListener('click', function () {
+      if (usuarioTipo === 'admin') novaPublicacao();
+      else alert('Apenas administradores podem criar publicações.');
+    });
+
+    document.getElementById('fecharFormPub').addEventListener('click', fecharFormPublicacao);
+    document.getElementById('vipPublicacaoFormModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharFormPublicacao();
+    });
+
+    document.getElementById('vipPublicacaoForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const id = document.getElementById('pubEditId').value;
+      const titulo = document.getElementById('pubTitulo').value.trim();
+      const conteudo = document.getElementById('pubConteudo').value.trim();
+      if (!titulo) { alert('Digite o título!'); return; }
+      if (!conteudo) { alert('Digite o conteúdo!'); return; }
+
+      try {
+        if (id) {
+          const pub = publicacoesVIP.find(p => p.id === id);
+          if (pub) {
+            pub.titulo = titulo;
+            pub.conteudo = conteudo;
+            await editarDados(COLLECTIONS.PUBLICACOES_VIP, id, pub);
+            publicacoesVIP = await carregarPublicacoesVIP();
+            renderizarPublicacoesVIP();
+            fecharFormPublicacao();
+          }
+        } else {
+          const novaPub = {
+            id: Date.now().toString(),
+            titulo: titulo,
+            conteudo: conteudo,
+            autor: usuarioTipo === 'admin' ? 'Administrador' : (usuarioVIPLogado ? usuarioVIPLogado.nome : 'Usuário'),
+            data: new Date().toISOString(),
+            fixado: false,
+            respostas: []
+          };
+          await salvarDados(COLLECTIONS.PUBLICACOES_VIP, novaPub, novaPub.id);
+          publicacoesVIP = await carregarPublicacoesVIP();
+          renderizarPublicacoesVIP();
+          fecharFormPublicacao();
+        }
+      } catch (error) {
+        alert('Erro ao salvar publicação: ' + error.message);
+      }
+    });
+
+    // ============================================================
+    // ===== CONFIGURAÇÃO ADMIN VIP =====
+    // ============================================================
+
+    document.getElementById('btnConfigVIP').addEventListener('click', function () {
+      if (usuarioTipo !== 'admin') return;
+      document.getElementById('vipConfigValor').value = configVIP.valor || '';
+      document.getElementById('vipConfigWhatsApp').value = configVIP.whatsapp || '';
+      document.getElementById('vipConfigModal').classList.add('active');
+    });
+
+    document.getElementById('fecharVipConfig').addEventListener('click', function () {
+      document.getElementById('vipConfigModal').classList.remove('active');
+    });
+
+    document.getElementById('vipConfigModal').addEventListener('click', function (e) {
+      if (e.target === this) this.classList.remove('active');
+    });
+
+    document.getElementById('vipConfigForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const valor = document.getElementById('vipConfigValor').value.trim();
+      const whatsapp = document.getElementById('vipConfigWhatsApp').value.trim();
+      if (!valor) { alert('Digite o valor da mensalidade!'); return; }
+      if (!whatsapp) { alert('Digite o número do WhatsApp!'); return; }
+      try {
+        configVIP = { valor, whatsapp };
+        await salvarConfigVIP(configVIP);
+        alert('✅ Configurações salvas com sucesso!');
+        document.getElementById('vipConfigModal').classList.remove('active');
+      } catch (error) {
+        alert('Erro ao salvar configurações: ' + error.message);
+      }
+    });
+
+    document.getElementById('btnExcluirConfig').addEventListener('click', async function () {
+      if (confirm('Tem certeza que deseja excluir as configurações VIP?')) {
+        try {
+          const existing = await carregarDados(COLLECTIONS.CONFIG_VIP);
+          if (existing.length > 0) {
+            await excluirDados(COLLECTIONS.CONFIG_VIP, existing[0].id);
+          }
+          configVIP = { valor: 'R$ 9,90', whatsapp: '(14) 99999-9999' };
+          document.getElementById('vipConfigValor').value = '';
+          document.getElementById('vipConfigWhatsApp').value = '';
+          alert('✅ Configurações excluídas!');
+        } catch (error) {
+          alert('Erro ao excluir configurações: ' + error.message);
+        }
+      }
+    });
+
+    // ============================================================
+    // ===== RENDERIZAR MEMBROS VIP =====
+    // ============================================================
+
+    function renderizarMembrosVIP() {
+      const container = document.getElementById('listaMembrosVIP');
+      if (!container) return;
+      if (usuariosVIP.length === 0) {
+        container.innerHTML = `
+        <div style="text-align:center; padding:1.5rem; color:#5a6f88;">
+          <i class="fas fa-users" style="font-size:2rem; color:#d0dae8;"></i>
+          <p style="margin-top:0.5rem;">Nenhum membro VIP cadastrado ainda.</p>
+        </div>
+      `;
+        return;
+      }
+      let html = '';
+      const exibir = usuariosVIP.slice(0, 10);
+      exibir.forEach(user => {
+        html += `
+        <div class="membro-card">
+          <div class="membro-info">
+            <i class="fas fa-user-circle"></i>
+            <span><strong>${user.nome}</strong> · desde ${user.dataCadastro || '2025'}</span>
+          </div>
+          <span class="membro-tag"><i class="fas fa-crown"></i> ${user.status || 'membro'}</span>
+        </div>
+      `;
+      });
+      container.innerHTML = html;
+      if (usuariosVIP.length > 10) {
+        container.innerHTML += `
+        <div style="text-align:center; padding:0.5rem; color:#5a6f88; font-size:0.8rem;">
+          <i class="fas fa-ellipsis-h"></i> + ${usuariosVIP.length - 10} membros
+        </div>
+      `;
+      }
+    }
+
+    // ============================================================
+    // ===== ACESSO VIP - GERENCIAMENTO =====
+    // ============================================================
+
+    function renderizarAcessoVIP() {
+      const container = document.getElementById('vipAcessoTabela');
+      if (!container) return;
+      let usuarios = [...usuariosVIP];
+      if (filtroAcessoAtual) {
+        const termo = filtroAcessoAtual.toLowerCase();
+        usuarios = usuarios.filter(u =>
+          u.nome.toLowerCase().includes(termo) ||
+          u.email.toLowerCase().includes(termo) ||
+          u.telefone.includes(termo) ||
+          u.cpf.includes(termo)
+        );
+      }
+      if (filtroStatusAcessoAtual !== 'todos') {
+        usuarios = usuarios.filter(u => u.status === filtroStatusAcessoAtual);
+      }
+      usuarios.sort((a, b) => {
+        let valA, valB;
+        switch (ordemAcesso.campo) {
+          case 'nome': valA = a.nome.toLowerCase(); valB = b.nome.toLowerCase(); break;
+          case 'dataCadastro': valA = a.dataCadastro; valB = b.dataCadastro; break;
+          case 'horaCadastro': valA = a.horaCadastro; valB = b.horaCadastro; break;
+          case 'status': valA = a.status; valB = b.status; break;
+          default: valA = a.dataCadastro; valB = b.dataCadastro;
+        }
+        if (valA < valB) return ordemAcesso.direcao === 'asc' ? -1 : 1;
+        if (valA > valB) return ordemAcesso.direcao === 'asc' ? 1 : -1;
+        return 0;
+      });
+      if (usuarios.length === 0) {
+        container.innerHTML = `<div class="sem-usuarios"><i class="fas fa-users"></i><p>Nenhum usuário VIP cadastrado.</p></div>`;
+        return;
+      }
+      let html = `
+      <table>
+        <thead>
+          <tr>
+            <th onclick="ordenarAcesso('nome')">Nome ${ordemAcesso.campo === 'nome' ? (ordemAcesso.direcao === 'asc' ? '↑' : '↓') : ''}</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>CPF</th>
+            <th>Cidade/UF</th>
+            <th onclick="ordenarAcesso('dataCadastro')">Data ${ordemAcesso.campo === 'dataCadastro' ? (ordemAcesso.direcao === 'asc' ? '↑' : '↓') : ''}</th>
+            <th onclick="ordenarAcesso('horaCadastro')">Hora ${ordemAcesso.campo === 'horaCadastro' ? (ordemAcesso.direcao === 'asc' ? '↑' : '↓') : ''}</th>
+            <th onclick="ordenarAcesso('status')">Status ${ordemAcesso.campo === 'status' ? (ordemAcesso.direcao === 'asc' ? '↑' : '↓') : ''}</th>
+            <th>Observações</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+      usuarios.forEach(user => {
+        const isEditing = acessoEditandoId === user.id;
+        const statusClass = 'status-' + user.status.toLowerCase();
+        const statusEmoji = user.status === 'Ativo' ? '🟢' : user.status === 'Bloqueado' ? '🔴' : user.status === 'Pendente' ? '🟡' : '⚫';
+        html += `
+        <tr>
+          <td>${isEditing ? `<input class="edit-input" type="text" id="edit-nome-${user.id}" value="${user.nome}">` : user.nome}</td>
+          <td>${isEditing ? `<input class="edit-input" type="email" id="edit-email-${user.id}" value="${user.email}">` : user.email}</td>
+          <td>${isEditing ? `<input class="edit-input" type="text" id="edit-telefone-${user.id}" value="${user.telefone || ''}">` : (user.telefone || '-')}</td>
+          <td>${isEditing ? `<input class="edit-input" type="text" id="edit-cpf-${user.id}" value="${user.cpf || ''}">` : (user.cpf || '-')}</td>
+          <td>${isEditing ? `<input class="edit-input" type="text" id="edit-cidade-${user.id}" value="${user.cidade || ''}" style="width:80px;"> <input class="edit-input" type="text" id="edit-estado-${user.id}" value="${user.estado || ''}" style="width:50px;">` : (user.cidade || '-') + '/' + (user.estado || '-')}</td>
+          <td>${user.dataCadastro}</td>
+          <td>${user.horaCadastro}</td>
+          <td><span class="status-badge ${statusClass}">${statusEmoji} ${user.status}</span></td>
+          <td>${isEditing ? `<input class="edit-input" type="text" id="edit-obs-${user.id}" value="${user.observacoes || ''}">` : (user.observacoes || '-')}</td>
+          <td>
+            <div class="acoes-usuario">
+              ${isEditing ? `
+                <button class="btn-salvar-usuario" data-id="${user.id}"><i class="fas fa-check"></i> Salvar</button>
+                <button class="btn-cancelar-usuario" data-id="${user.id}"><i class="fas fa-times"></i> Cancelar</button>
+              ` : `
+                <button class="btn-editar-usuario" data-id="${user.id}"><i class="fas fa-edit"></i> Editar</button>
+                <button class="btn-excluir-usuario" data-id="${user.id}"><i class="fas fa-trash"></i> Excluir</button>
+                ${user.status === 'Bloqueado' ?
+            `<button class="btn-liberar-usuario" data-id="${user.id}"><i class="fas fa-check-circle"></i> Liberar</button>` :
+            `<button class="btn-bloquear-usuario" data-id="${user.id}"><i class="fas fa-ban"></i> Bloquear</button>`
+          }
+                ${user.status !== 'Cancelado' ? `<button class="btn-cancelar-usuario" data-id="${user.id}"><i class="fas fa-times-circle"></i> Cancelar</button>` : ''}
+              `}
+            </div>
+          </td>
+        </tr>
+      `;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+
+      if (acessoEditandoId === null) {
+        document.querySelectorAll('.btn-editar-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            acessoEditandoId = this.dataset.id;
+            renderizarAcessoVIP();
+          });
+        });
+        document.querySelectorAll('.btn-excluir-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja excluir este usuário?')) {
+              excluirDados(COLLECTIONS.USUARIOS_VIP, id).then(async () => {
+                usuariosVIP = await carregarUsuariosVIP();
+                renderizarAcessoVIP();
+                renderizarMembrosVIP();
+              }).catch(err => alert('Erro ao excluir: ' + err.message));
+            }
+          });
+        });
+        document.querySelectorAll('.btn-bloquear-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const user = usuariosVIP.find(u => u.id === id);
+            if (user) {
+              user.status = 'Bloqueado';
+              editarDados(COLLECTIONS.USUARIOS_VIP, id, user).then(async () => {
+                usuariosVIP = await carregarUsuariosVIP();
+                renderizarAcessoVIP();
+                renderizarMembrosVIP();
+              }).catch(err => alert('Erro ao bloquear: ' + err.message));
+            }
+          });
+        });
+        document.querySelectorAll('.btn-liberar-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const user = usuariosVIP.find(u => u.id === id);
+            if (user) {
+              user.status = 'Ativo';
+              editarDados(COLLECTIONS.USUARIOS_VIP, id, user).then(async () => {
+                usuariosVIP = await carregarUsuariosVIP();
+                renderizarAcessoVIP();
+                renderizarMembrosVIP();
+              }).catch(err => alert('Erro ao liberar: ' + err.message));
+            }
+          });
+        });
+        document.querySelectorAll('.btn-cancelar-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja cancelar este cadastro?')) {
+              const user = usuariosVIP.find(u => u.id === id);
+              if (user) {
+                user.status = 'Cancelado';
+                editarDados(COLLECTIONS.USUARIOS_VIP, id, user).then(async () => {
+                  usuariosVIP = await carregarUsuariosVIP();
+                  renderizarAcessoVIP();
+                  renderizarMembrosVIP();
+                }).catch(err => alert('Erro ao cancelar: ' + err.message));
+              }
+            }
+          });
+        });
+      } else {
+        document.querySelectorAll('.btn-salvar-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const nome = document.getElementById(`edit-nome-${id}`).value.trim();
+            const email = document.getElementById(`edit-email-${id}`).value.trim();
+            const telefone = document.getElementById(`edit-telefone-${id}`).value.trim();
+            const cpf = document.getElementById(`edit-cpf-${id}`).value.trim();
+            const cidade = document.getElementById(`edit-cidade-${id}`).value.trim();
+            const estado = document.getElementById(`edit-estado-${id}`).value.trim();
+            const observacoes = document.getElementById(`edit-obs-${id}`).value.trim();
+            if (!nome) { alert('Nome obrigatório!'); return; }
+            if (!email || !email.includes('@')) { alert('E-mail válido obrigatório!'); return; }
+            const user = usuariosVIP.find(u => u.id === id);
+            if (user) {
+              user.nome = nome;
+              user.email = email;
+              user.telefone = telefone || '';
+              user.cpf = cpf || '';
+              user.cidade = cidade || '';
+              user.estado = estado || '';
+              user.observacoes = observacoes || '';
+              editarDados(COLLECTIONS.USUARIOS_VIP, id, user).then(async () => {
+                usuariosVIP = await carregarUsuariosVIP();
+                acessoEditandoId = null;
+                renderizarAcessoVIP();
+                renderizarMembrosVIP();
+              }).catch(err => alert('Erro ao salvar: ' + err.message));
+            }
+          });
+        });
+        document.querySelectorAll('.btn-cancelar-usuario').forEach(btn => {
+          btn.addEventListener('click', function () {
+            acessoEditandoId = null;
+            renderizarAcessoVIP();
+          });
+        });
+      }
+    }
+
+    window.ordenarAcesso = function (campo) {
+      if (ordemAcesso.campo === campo) {
+        ordemAcesso.direcao = ordemAcesso.direcao === 'asc' ? 'desc' : 'asc';
+      } else {
+        ordemAcesso.campo = campo;
+        ordemAcesso.direcao = 'asc';
+      }
+      renderizarAcessoVIP();
+    };
+
+    window.filtrarAcesso = function () {
+      const input = document.getElementById('filtroAcesso');
+      filtroAcessoAtual = input ? input.value : '';
+      const select = document.getElementById('filtroStatusAcesso');
+      filtroStatusAcessoAtual = select ? select.value : 'todos';
+      renderizarAcessoVIP();
+    };
+
+    document.getElementById('btnAcessoVIP').addEventListener('click', function () {
+      if (usuarioTipo !== 'admin') {
+        alert('Apenas o administrador pode acessar esta área.');
+        return;
+      }
+      renderizarAcessoVIP();
+      document.getElementById('vipAcessoModal').classList.add('active');
+    });
+
+    document.getElementById('fecharVipAcesso').addEventListener('click', function () {
+      document.getElementById('vipAcessoModal').classList.remove('active');
+      acessoEditandoId = null;
+    });
+
+    document.getElementById('vipAcessoModal').addEventListener('click', function (e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+        acessoEditandoId = null;
+      }
+    });
+
+    // ============================================================
+    // ===== BOTÃO ÁREA VIP =====
+    // ============================================================
+
+    document.getElementById('btnAreaVIP').addEventListener('click', function (e) {
+      e.preventDefault();
+      if (usuarioVIPLogado) { abrirPaginaVIP(); return; }
+      if (usuarioTipo === 'admin') { abrirPaginaVIP(); return; }
+      abrirEmailVIP();
+    });
+
+    document.getElementById('fecharVipPagina').addEventListener('click', function () {
+      fecharPaginaVIP();
+    });
+
+    document.getElementById('vipPaginaModal').addEventListener('click', function (e) {
+      if (e.target === this) fecharPaginaVIP();
+    });
+
+    // ============================================================
+    // ===== INICIALIZAÇÃO =====
+    // ============================================================
+
+    // Carregar dados e renderizar
+    carregarTodosDados().then(() => {
+      document.getElementById('grupoVIP').classList.add('hidden');
+      atualizarEstadoChat();
+      console.log('✅ Sistema carregado com sucesso usando Firebase!');
+      console.log('📱 Chat disponível na aba "Chat" dentro de CLASSIFICADOS');
+      console.log('🔄 Sucatas gerenciáveis apenas por administradores');
+      console.log('📷 Upload de imagens na seção Sucatas substituiu o campo de URL');
+    }).catch(err => {
+      console.error('Erro na inicialização:', err);
+    });
+
+    // Manter funções globais para uso em onclick
+    window.editarSucata = editarSucata;
+    window.excluirSucata = excluirSucata;
+    window.editarPublicacao = editarPublicacao;
+    window.excluirPublicacao = excluirPublicacao;
+    window.fixarPublicacao = fixarPublicacao;
+    window.editarAnuncio = editarAnuncio;
+    window.excluirAnuncio = excluirAnuncio;
+    window.toggleRespostas = toggleRespostas;
+    window.salvarResposta = salvarResposta;
+    window.excluirResposta = excluirResposta;
+    window.ordenarAcesso = ordenarAcesso;
+    window.filtrarAcesso = filtrarAcesso;
+    window.enviarMensagem = enviarMensagem;
+    window.filtrarTitulo = filtrarTitulo;
+    window.filtrarPeriodo = filtrarPeriodo;
+    window.filtrarPublicacoes = filtrarPublicacoes;
+  </script>
+</body>
+
+</html>
