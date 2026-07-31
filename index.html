@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -1225,6 +1224,11 @@
       color: #fff;
     }
 
+    /* Ocultar aba Classificados no admin */
+    .admin-tabs button[data-tab="classifieds"] {
+      display: none !important;
+    }
+
     .admin-panel {
       display: none;
     }
@@ -1299,6 +1303,175 @@
     .status-excluido {
       background: rgba(106, 106, 138, 0.15);
       color: var(--text-muted);
+    }
+
+    /* ============================================================
+       BIOGRAFIA - NOVA PÁGINA
+       ============================================================ */
+    .biografia-texto {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-card);
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .biografia-texto p {
+      margin-bottom: 16px;
+    }
+
+    .biografia-texto p:last-child {
+      margin-bottom: 0;
+    }
+
+    .biografia-galeria {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .biografia-galeria .foto-item {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      cursor: pointer;
+      aspect-ratio: 1/1;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .biografia-galeria .foto-item:hover {
+      transform: scale(1.02);
+      border-color: var(--turquoise-400);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .biografia-galeria .foto-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .biografia-galeria .foto-item .placeholder-foto {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .biografia-galeria .foto-item .placeholder-foto i {
+      font-size: 40px;
+      color: var(--purple-400);
+      opacity: 0.4;
+    }
+
+    /* Preview das imagens no admin */
+    .biografia-preview-imagens {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .biografia-preview-imagens .preview-item {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      aspect-ratio: 1/1;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .biografia-preview-imagens .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .biografia-preview-imagens .preview-item .placeholder-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .biografia-preview-imagens .preview-item .placeholder-preview i {
+      font-size: 28px;
+      color: var(--purple-400);
+      opacity: 0.3;
+    }
+
+    .biografia-preview-imagens .preview-item .remove-foto {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--neon-red);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .biografia-preview-imagens .preview-item .remove-foto:hover {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .biografia-galeria {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .biografia-texto {
+        padding: 24px 20px;
+        font-size: 15px;
+      }
+
+      .biografia-preview-imagens {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .biografia-galeria {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .biografia-texto {
+        padding: 20px 16px;
+        font-size: 14px;
+      }
+
+      .biografia-preview-imagens {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
     }
 
     /* ============================================================
@@ -2209,6 +2382,7 @@
         <button data-page="mural"><i class="fas fa-comments"></i> Mural</button>
         <button data-page="vip"><i class="fas fa-crown"></i> VIP <span class="badge">🔥</span></button>
         <button data-page="profile"><i class="fas fa-user"></i> Perfil</button>
+        <button data-page="biografia"><i class="fas fa-book-open"></i> Biografia</button>
         <button data-page="contact"><i class="fas fa-envelope"></i> Contato</button>
       </nav>
 
@@ -2374,6 +2548,22 @@
       </div>
     </section>
 
+    <!-- BIOGRAFIA - NOVA PÁGINA -->
+    <section class="page" id="page-biografia">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2><i class="fas fa-book-open text-neon-purple"></i> Biografia</h2>
+            <span class="subtitle">Conheça nossa história</span>
+          </div>
+        </div>
+
+        <div id="biografiaContainer">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+    </section>
+
     <!-- CONTATO -->
     <section class="page" id="page-contact">
       <div class="container">
@@ -2463,6 +2653,7 @@
           <button data-tab="store"><i class="fas fa-store"></i> Loja</button>
           <button data-tab="classifieds"><i class="fas fa-tags"></i> Classificados</button>
           <button data-tab="mural"><i class="fas fa-comments"></i> Mural</button>
+          <button data-tab="biografia"><i class="fas fa-book-open"></i> Biografia</button>
           <button data-tab="config"><i class="fas fa-cog"></i> Configurações</button>
         </div>
 
@@ -2507,6 +2698,76 @@
 
         <div class="admin-panel" id="adminMural">
           <div id="adminMuralList"></div>
+        </div>
+
+        <!-- NOVA ABA: BIOGRAFIA -->
+        <div class="admin-panel" id="adminBiografia">
+          <div style="max-width: 640px;">
+            <form id="formBiografia">
+              <div class="form-group">
+                <label>Texto da Biografia</label>
+                <textarea id="bioTexto" class="form-control" rows="12"
+                  placeholder="Digite a biografia aqui..."></textarea>
+                <span class="hint">O texto aceita múltiplos parágrafos. Use quebras de linha para organizar.</span>
+              </div>
+
+              <div class="form-group">
+                <label>Foto 1</label>
+                <input type="file" id="bioFoto1" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                <span class="hint">Selecione a primeira imagem (JPG, JPEG, PNG, WEBP)</span>
+              </div>
+
+              <div class="form-group">
+                <label>Foto 2</label>
+                <input type="file" id="bioFoto2" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                <span class="hint">Selecione a segunda imagem (JPG, JPEG, PNG, WEBP)</span>
+              </div>
+
+              <div class="form-group">
+                <label>Foto 3</label>
+                <input type="file" id="bioFoto3" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                <span class="hint">Selecione a terceira imagem (JPG, JPEG, PNG, WEBP)</span>
+              </div>
+
+              <div class="form-group">
+                <label>Pré-visualização das imagens</label>
+                <div class="biografia-preview-imagens" id="bioPreviewContainer">
+                  <div class="preview-item" id="bioPreview1">
+                    <div class="placeholder-preview">
+                      <i class="fas fa-image"></i>
+                      <span>Foto 1</span>
+                    </div>
+                  </div>
+                  <div class="preview-item" id="bioPreview2">
+                    <div class="placeholder-preview">
+                      <i class="fas fa-image"></i>
+                      <span>Foto 2</span>
+                    </div>
+                  </div>
+                  <div class="preview-item" id="bioPreview3">
+                    <div class="placeholder-preview">
+                      <i class="fas fa-image"></i>
+                      <span>Foto 3</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="error-msg hidden" id="bioErro"></div>
+
+              <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
+                <button type="submit" class="btn btn-primary" id="bioBtnSalvar">
+                  <i class="fas fa-save"></i> Salvar
+                </button>
+                <button type="button" class="btn btn-outline" id="bioBtnEditar">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button type="button" class="btn btn-danger" id="bioBtnExcluir">
+                  <i class="fas fa-trash"></i> Excluir
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <div class="admin-panel" id="adminConfig">
@@ -3012,6 +3273,7 @@
       muralItems: [],
       vipMembers: [],
       planosVip: [],
+      biografia: null,
       confirmCallback: null,
       authInitialized: false
     };
@@ -3187,6 +3449,11 @@
           b.classList.toggle("active", b.dataset.page === id);
         });
         window.scrollTo({ top: 0, behavior: "smooth" });
+
+        // Se for a página de biografia, renderizar
+        if (id === 'biografia') {
+          renderBiografia();
+        }
       } catch (error) {
         console.error("❌ Erro ao navegar para página:", error);
         toast("Erro ao navegar para a página.", "error");
@@ -4861,6 +5128,23 @@
         }, (error) => {
           console.error("❌ Erro no listener do mural:", error);
         });
+        // Listener para a biografia
+        onSnapshot(doc(db, "biografia", "principal"), docSnap => {
+          try {
+            if (docSnap.exists()) {
+              state.biografia = { id: docSnap.id, ...docSnap.data() };
+            } else {
+              state.biografia = null;
+            }
+            renderBiografiaAdmin();
+            renderBiografia();
+            console.log("✅ Biografia carregada:", state.biografia ? "Dados encontrados" : "Nenhum dado");
+          } catch (error) {
+            console.error("❌ Erro ao processar biografia:", error);
+          }
+        }, (error) => {
+          console.error("❌ Erro no listener da biografia:", error);
+        });
       } catch (error) {
         console.error("❌ Erro ao iniciar listeners admin:", error);
       }
@@ -6139,6 +6423,389 @@
     }
 
     // ============================================================
+    // BIOGRAFIA - NOVAS FUNÇÕES
+    // ============================================================
+
+    // Renderizar biografia para usuários
+    function renderBiografia() {
+      try {
+        const container = document.getElementById("biografiaContainer");
+        if (!container) return;
+
+        const bio = state.biografia;
+
+        if (!bio || (!bio.texto && !bio.foto1 && !bio.foto2 && !bio.foto3)) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-book-open"></i>
+              <p>Nenhuma biografia cadastrada ainda.</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+
+        // Texto da biografia
+        if (bio.texto) {
+          html += `
+            <div class="biografia-texto">
+              ${bio.texto.replace(/\n/g, '<br>')}
+            </div>
+          `;
+        }
+
+        // Galeria de fotos
+        const fotos = [];
+        if (bio.foto1) fotos.push(bio.foto1);
+        if (bio.foto2) fotos.push(bio.foto2);
+        if (bio.foto3) fotos.push(bio.foto3);
+
+        if (fotos.length > 0) {
+          html += `<div class="biografia-galeria">`;
+          fotos.forEach((foto, index) => {
+            html += `
+              <div class="foto-item" data-index="${index}">
+                <img src="${foto}" alt="Foto ${index + 1}" loading="lazy">
+              </div>
+            `;
+          });
+          html += `</div>`;
+
+          // Adicionar evento de lightbox na galeria
+          setTimeout(() => {
+            const items = container.querySelectorAll('.foto-item');
+            items.forEach((item, index) => {
+              item.addEventListener('click', function () {
+                openLightbox(fotos, index);
+              });
+            });
+          }, 100);
+        }
+
+        container.innerHTML = html;
+
+      } catch (error) {
+        console.error("❌ Erro ao renderizar biografia:", error);
+        const container = document.getElementById("biografiaContainer");
+        if (container) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-exclamation-triangle" style="color: var(--neon-red);"></i>
+              <p>Erro ao carregar biografia.</p>
+            </div>
+          `;
+        }
+      }
+    }
+
+    // Renderizar biografia no admin
+    function renderBiografiaAdmin() {
+      try {
+        const bio = state.biografia;
+
+        // Preencher o formulário
+        const textoField = document.getElementById("bioTexto");
+        if (textoField) {
+          textoField.value = bio?.texto || '';
+        }
+
+        // Atualizar preview das imagens
+        const fotos = [
+          { id: 'bioPreview1', inputId: 'bioFoto1', url: bio?.foto1 },
+          { id: 'bioPreview2', inputId: 'bioFoto2', url: bio?.foto2 },
+          { id: 'bioPreview3', inputId: 'bioFoto3', url: bio?.foto3 }
+        ];
+
+        fotos.forEach(({ id, inputId, url }) => {
+          const preview = document.getElementById(id);
+          if (!preview) return;
+
+          if (url) {
+            preview.innerHTML = `
+              <img src="${url}" alt="Foto">
+              <button class="remove-foto" data-input="${inputId}" data-preview="${id}" title="Remover foto">
+                <i class="fas fa-times"></i>
+              </button>
+            `;
+            // Adicionar evento para remover
+            const removeBtn = preview.querySelector('.remove-foto');
+            if (removeBtn) {
+              removeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const inputId = this.dataset.input;
+                const previewId = this.dataset.preview;
+                document.getElementById(inputId).value = '';
+                document.getElementById(previewId).innerHTML = `
+                  <div class="placeholder-preview">
+                    <i class="fas fa-image"></i>
+                    <span>${inputId === 'bioFoto1' ? 'Foto 1' : inputId === 'bioFoto2' ? 'Foto 2' : 'Foto 3'}</span>
+                  </div>
+                `;
+                toast("Foto removida. Salve para confirmar.", "info");
+              });
+            }
+          } else {
+            preview.innerHTML = `
+              <div class="placeholder-preview">
+                <i class="fas fa-image"></i>
+                <span>${id === 'bioPreview1' ? 'Foto 1' : id === 'bioPreview2' ? 'Foto 2' : 'Foto 3'}</span>
+              </div>
+            `;
+          }
+        });
+
+        // Mostrar status no botão
+        const btnSalvar = document.getElementById("bioBtnSalvar");
+        if (btnSalvar) {
+          btnSalvar.innerHTML = bio ? '<i class="fas fa-save"></i> Atualizar' : '<i class="fas fa-save"></i> Salvar';
+        }
+
+      } catch (error) {
+        console.error("❌ Erro ao renderizar biografia admin:", error);
+      }
+    }
+
+    // Função para salvar biografia
+    async function salvarBiografia() {
+      try {
+        const erroEl = document.getElementById("bioErro");
+        if (!erroEl) return;
+        erroEl.classList.add("hidden");
+
+        const texto = document.getElementById("bioTexto").value.trim();
+
+        // Upload das imagens
+        const foto1File = document.getElementById("bioFoto1").files[0];
+        const foto2File = document.getElementById("bioFoto2").files[0];
+        const foto3File = document.getElementById("bioFoto3").files[0];
+
+        let foto1 = null;
+        let foto2 = null;
+        let foto3 = null;
+
+        try {
+          if (foto1File) {
+            foto1 = await uploadPhoto(foto1File, "biografia");
+          }
+          if (foto2File) {
+            foto2 = await uploadPhoto(foto2File, "biografia");
+          }
+          if (foto3File) {
+            foto3 = await uploadPhoto(foto3File, "biografia");
+          }
+        } catch (uploadErr) {
+          console.error("❌ Erro no upload das imagens:", uploadErr);
+          erroEl.textContent = "Erro ao processar as imagens. Tente novamente.";
+          erroEl.classList.remove("hidden");
+          return;
+        }
+
+        const dados = {
+          texto: texto,
+          updatedAt: serverTimestamp(),
+        };
+
+        // Manter imagens existentes se não houver novas
+        if (state.biografia) {
+          if (!foto1 && state.biografia.foto1) dados.foto1 = state.biografia.foto1;
+          if (!foto2 && state.biografia.foto2) dados.foto2 = state.biografia.foto2;
+          if (!foto3 && state.biografia.foto3) dados.foto3 = state.biografia.foto3;
+        }
+
+        if (foto1) dados.foto1 = foto1;
+        if (foto2) dados.foto2 = foto2;
+        if (foto3) dados.foto3 = foto3;
+
+        const bioRef = doc(db, "biografia", "principal");
+
+        if (state.biografia) {
+          await updateDoc(bioRef, dados);
+          toast("Biografia atualizada com sucesso!", "success");
+        } else {
+          dados.createdAt = serverTimestamp();
+          await setDoc(bioRef, dados);
+          toast("Biografia criada com sucesso!", "success");
+        }
+
+        // Recarregar dados
+        const snap = await getDoc(bioRef);
+        if (snap.exists()) {
+          state.biografia = { id: snap.id, ...snap.data() };
+        }
+
+        renderBiografiaAdmin();
+        renderBiografia();
+
+        // Limpar campos de arquivo
+        document.getElementById("bioFoto1").value = '';
+        document.getElementById("bioFoto2").value = '';
+        document.getElementById("bioFoto3").value = '';
+
+      } catch (err) {
+        console.error("❌ Erro ao salvar biografia:", err);
+        const erroEl = document.getElementById("bioErro");
+        if (erroEl) {
+          erroEl.textContent = "Erro ao salvar: " + (err.message || "Erro desconhecido");
+          erroEl.classList.remove("hidden");
+        }
+      }
+    }
+
+    // Função para excluir biografia
+    async function excluirBiografia() {
+      try {
+        if (!state.biografia) {
+          toast("Nenhuma biografia para excluir.", "error");
+          return;
+        }
+
+        confirmar(
+          "Excluir biografia?",
+          "Tem certeza que deseja excluir a biografia?<br><br>⚠️ <strong>Todo o texto e imagens serão removidos permanentemente.</strong>",
+          async () => {
+            try {
+              const bioRef = doc(db, "biografia", "principal");
+              await deleteDoc(bioRef);
+              state.biografia = null;
+              renderBiografiaAdmin();
+              renderBiografia();
+              toast("Biografia excluída com sucesso!", "success");
+            } catch (err) {
+              console.error("❌ Erro ao excluir biografia:", err);
+              toast("Erro ao excluir: " + (err.message || "Erro desconhecido"), "error");
+            }
+          }
+        );
+
+      } catch (err) {
+        console.error("❌ Erro ao excluir biografia:", err);
+        toast("Erro ao excluir: " + (err.message || "Erro desconhecido"), "error");
+      }
+    }
+
+    // Eventos do formulário de biografia
+    document.addEventListener('DOMContentLoaded', function () {
+      // Salvar
+      document.getElementById("bioBtnSalvar")?.addEventListener('click', function (e) {
+        e.preventDefault();
+        salvarBiografia();
+      });
+
+      // Editar - carregar dados existentes para edição
+      document.getElementById("bioBtnEditar")?.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (state.biografia) {
+          renderBiografiaAdmin();
+          toast("Dados carregados para edição. Faça as alterações e clique em Salvar.", "info");
+        } else {
+          toast("Nenhuma biografia para editar.", "error");
+        }
+      });
+
+      // Excluir
+      document.getElementById("bioBtnExcluir")?.addEventListener('click', function (e) {
+        e.preventDefault();
+        excluirBiografia();
+      });
+
+      // Preview das imagens ao selecionar arquivos
+      document.getElementById("bioFoto1")?.addEventListener('change', function (e) {
+        const file = this.files[0];
+        const preview = document.getElementById("bioPreview1");
+        if (file && preview) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            preview.innerHTML = `
+              <img src="${event.target.result}" alt="Foto 1">
+              <button class="remove-foto" data-input="bioFoto1" data-preview="bioPreview1" title="Remover foto">
+                <i class="fas fa-times"></i>
+              </button>
+            `;
+            const removeBtn = preview.querySelector('.remove-foto');
+            if (removeBtn) {
+              removeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('bioFoto1').value = '';
+                document.getElementById('bioPreview1').innerHTML = `
+                  <div class="placeholder-preview">
+                    <i class="fas fa-image"></i>
+                    <span>Foto 1</span>
+                  </div>
+                `;
+              });
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      document.getElementById("bioFoto2")?.addEventListener('change', function (e) {
+        const file = this.files[0];
+        const preview = document.getElementById("bioPreview2");
+        if (file && preview) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            preview.innerHTML = `
+              <img src="${event.target.result}" alt="Foto 2">
+              <button class="remove-foto" data-input="bioFoto2" data-preview="bioPreview2" title="Remover foto">
+                <i class="fas fa-times"></i>
+              </button>
+            `;
+            const removeBtn = preview.querySelector('.remove-foto');
+            if (removeBtn) {
+              removeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('bioFoto2').value = '';
+                document.getElementById('bioPreview2').innerHTML = `
+                  <div class="placeholder-preview">
+                    <i class="fas fa-image"></i>
+                    <span>Foto 2</span>
+                  </div>
+                `;
+              });
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      document.getElementById("bioFoto3")?.addEventListener('change', function (e) {
+        const file = this.files[0];
+        const preview = document.getElementById("bioPreview3");
+        if (file && preview) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            preview.innerHTML = `
+              <img src="${event.target.result}" alt="Foto 3">
+              <button class="remove-foto" data-input="bioFoto3" data-preview="bioPreview3" title="Remover foto">
+                <i class="fas fa-times"></i>
+              </button>
+            `;
+            const removeBtn = preview.querySelector('.remove-foto');
+            if (removeBtn) {
+              removeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('bioFoto3').value = '';
+                document.getElementById('bioPreview3').innerHTML = `
+                  <div class="placeholder-preview">
+                    <i class="fas fa-image"></i>
+                    <span>Foto 3</span>
+                  </div>
+                `;
+              });
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
+    // ============================================================
     // ADMIN TABS
     // ============================================================
     document.querySelectorAll("#adminTabs button").forEach(b => {
@@ -6156,6 +6823,11 @@
           if (this.dataset.tab === 'aniversariantes' && state.isAdmin) {
             renderizarAniversariantes();
           }
+
+          // Se for a aba de biografia, renderizar
+          if (this.dataset.tab === 'biografia' && state.isAdmin) {
+            renderBiografiaAdmin();
+          }
         } catch (error) {
           console.error("❌ Erro ao trocar aba admin:", error);
         }
@@ -6171,10 +6843,12 @@
         renderHomeDestaques();
         renderClassifieds();
         renderProfile();
+        renderBiografia();
         if (state.isAdmin) {
           renderAdminStore();
           renderAdminClassifieds();
           renderPlanosVipAdmin();
+          renderBiografiaAdmin();
           iniciarAdminListeners();
           // Verificar se a aba de aniversariantes está ativa
           const tabAniversariantes = document.querySelector('#adminTabs button[data-tab="aniversariantes"]');
